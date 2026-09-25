@@ -1,0 +1,72 @@
+// ============================================================
+//  Aurora Smart Restaurant — Design System Variables & Mixins
+// ============================================================
+
+// ---- Brand palette (public / luxury dark) ----
+$bg-dark:        #0c0d10;
+$bg-dark-2:      #13151a;
+$bg-card:        #181b21;
+$gold:           #d4a24e;
+$gold-light:     #ecc482;
+$gold-dark:      #a87c32;
+$cream:          #f5efe4;
+$muted:          #9aa0ab;
+$danger:         #e05252;
+$success:        #3fae7a;
+$info:           #5b9bd5;
+
+// ---- Admin palette (light professional) ----
+$adm-bg:         #f4f6fa;
+$adm-surface:    #ffffff;
+$adm-border:     #e5e9f2;
+$adm-text:       #1c2333;
+$adm-text-soft:  #6b7385;
+$adm-primary:    #4f46e5;   // indigo
+$adm-primary-2:  #6d63f5;
+$adm-accent:     #0ea5a4;   // teal
+$adm-warn:       #f59e0b;
+$adm-danger:     #ef4444;
+$adm-success:    #22c55e;
+
+// ---- Typography ----
+$font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+$font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+$font-mono: 'JetBrains Mono', 'Consolas', monospace;
+
+// ---- Radii & shadows ----
+$r-sm: 8px;
+$r-md: 14px;
+$r-lg: 22px;
+$r-pill: 999px;
+$shadow-1: 0 2px 8px rgba(10, 14, 25, 0.08);
+$shadow-2: 0 10px 30px rgba(10, 14, 25, 0.12);
+$shadow-3: 0 20px 60px rgba(10, 14, 25, 0.22);
+
+// ---- Breakpoints ----
+$bp-sm: 640px;
+$bp-md: 900px;
+$bp-lg: 1200px;
+
+@mixin mobile { @media (max-width: #{$bp-sm}) { @content; } }
+@mixin tablet { @media (max-width: #{$bp-md}) { @content; } }
+
+@mixin card {
+  background: $adm-surface;
+  border: 1px solid $adm-border;
+  border-radius: $r-md;
+  box-shadow: $shadow-1;
+}
+
+@mixin gold-text {
+  background: linear-gradient(120deg, $gold-light, $gold 55%, $gold-dark);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@mixin scrollbar {
+  &::-webkit-scrollbar { width: 8px; height: 8px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(120, 130, 150, 0.35); border-radius: 8px; }
+  &::-webkit-scrollbar-thumb:hover { background: rgba(120, 130, 150, 0.55); }
+}

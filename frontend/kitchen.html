@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurora KDS — Kitchen Display</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/kitchen.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='72' font-size='72' font-family='serif' font-weight='bold' fill='%23d4a24e'>K</text></svg>">
+</head>
+<body>
+
+<header class="kds-top">
+  <div>
+    <div class="k-brand">Aurora <span>KDS</span></div>
+    <div class="k-sub">Kitchen Display System</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="station-filter" id="stationFilter">
+    <button class="active" data-st="all">All Stations</button>
+    <button data-st="3">Grill</button>
+    <button data-st="4">Fry</button>
+    <button data-st="2">Cold</button>
+    <button data-st="6">Hot Line</button>
+    <button data-st="5">Pastry</button>
+    <button data-st="1">Bar</button>
+  </div>
+  <div class="clock" id="clock">--:--</div>
+  <a class="k-exit" href="/admin.html">Exit</a>
+</header>
+
+<div class="kds-stats">
+  <div class="k-stat"><b id="stActive">0</b><span>Active</span></div>
+  <div class="k-stat"><b id="stReady">0</b><span>On the Pass</span></div>
+  <div class="k-stat alert" id="stLateWrap"><b id="stLate">0</b><span>Late (&gt;20m)</span></div>
+  <div class="k-stat ok"><b id="stAvg">0m</b><span>Avg Age</span></div>
+</div>
+
+<div class="kds-columns">
+  <div class="kds-col">
+    <div class="col-head"><h2 style="color:#38bdf8">New Tickets</h2><span class="count" id="cntNew">0</span><span class="rule"></span></div>
+    <div class="col-body" id="colNew"></div>
+  </div>
+  <div class="kds-col">
+    <div class="col-head"><h2 style="color:#f59e0b">In Progress</h2><span class="count" id="cntWip">0</span><span class="rule"></span></div>
+    <div class="col-body" id="colWip"></div>
+  </div>
+  <div class="kds-col">
+    <div class="col-head"><h2 style="color:#22c55e">Ready to Serve</h2><span class="count" id="cntReady">0</span><span class="rule"></span></div>
+    <div class="col-body" id="colReady"></div>
+  </div>
+</div>
+
+<script src="/js/core.js"></script>
+<script src="/js/kitchen.js"></script>
+</body>
+</html>

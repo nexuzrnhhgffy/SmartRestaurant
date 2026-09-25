@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aurora Admin — Restaurant Management Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='72' font-size='72' font-family='serif' font-weight='bold' fill='%234f46e5'>A</text></svg>">
+</head>
+<body>
+
+<!-- ==================== LOGIN ==================== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-hero">
+      <div>
+        <div class="lh-brand">Aurora <span>Admin</span></div>
+        <div class="lh-sub">Smart Restaurant OS</div>
+        <h2>One dashboard.<br>Every role.</h2>
+        <p>POS & tables for the cashier, live tickets for the kitchen, finance for the accountant — all role-aware.</p>
+      </div>
+      <div class="lh-roles">
+        <div class="role-chip" onclick="fillDemo('superadmin@restaurant.com','Super@123')"><b>SuperAdmin</b><span>superadmin@restaurant.com</span></div>
+        <div class="role-chip" onclick="fillDemo('manager@restaurant.com','Manager@123')"><b>Manager</b><span>manager@restaurant.com</span></div>
+        <div class="role-chip" onclick="fillDemo('cashier@restaurant.com','Cashier@123')"><b>Cashier</b><span>cashier@restaurant.com</span></div>
+        <div class="role-chip" onclick="fillDemo('waiter@restaurant.com','Waiter@123')"><b>Waiter</b><span>waiter@restaurant.com</span></div>
+        <div class="role-chip" onclick="fillDemo('chef@restaurant.com','Chef@123')"><b>Chef</b><span>chef@restaurant.com</span></div>
+        <div class="role-chip" onclick="fillDemo('accountant@restaurant.com','Account@123')"><b>Accountant</b><span>accountant@restaurant.com</span></div>
+      </div>
+    </div>
+    <div class="login-form">
+      <h3>Sign in</h3>
+      <p class="lf-hint">Use a demo account on the left, or your staff credentials.</p>
+      <div class="field"><label>Email</label><input class="input" id="loginEmail" type="email" placeholder="you@restaurant.com" autocomplete="username"></div>
+      <div class="field"><label>Password</label><input class="input" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="btn primary" id="loginBtn" style="width:100%;justify-content:center;">Enter Dashboard</button>
+      <div class="err" id="loginErr"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APP SHELL ==================== -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="tb-brand"><div class="logo-dot">A</div>
+      <div><div>Aurora Admin</div><div class="tb-sub" id="tbRole">—</div></div>
+    </div>
+    <div class="tb-spacer"></div>
+    <button class="icon-btn" id="notifBtn" title="Notifications">🔔<span class="n-dot" id="notifDot"></span></button>
+    <a class="icon-btn" href="/" title="Public website" style="text-decoration:none">🍽</a>
+    <div class="tb-user">
+      <div class="avatar" id="tbAvatar">?</div>
+      <div><div class="u-name" id="tbName">—</div><div class="u-role" id="tbRoleName">—</div></div>
+    </div>
+  </div>
+
+  <div class="notif-panel" id="notifPanel">
+    <div class="np-head">Notifications <button class="btn xs soft" id="markAllRead">Mark all read</button></div>
+    <div id="notifList"></div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-card" id="modalCard"></div>
+</div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="/js/core.js"></script>
+<script src="/js/charts.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/admin2.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => AdminBoot());</script>
+</body>
+</html>

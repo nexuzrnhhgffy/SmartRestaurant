@@ -1,0 +1,352 @@
+@use 'variables' as *;
+
+// ============================================================
+//  Aurora Admin — Role Dashboard System (light professional)
+// ============================================================
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: $font-body;
+  background: $adm-bg;
+  color: $adm-text;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select, textarea { font-family: inherit; font-size: .92rem; color: $adm-text; }
+
+::selection { background: rgba(79, 70, 229, .18); }
+
+// ---------- Login ----------
+.login-screen {
+  min-height: 100dvh; display: grid; place-items: center;
+  background:
+    radial-gradient(ellipse 55% 45% at 80% 10%, rgba(79, 70, 229, .14), transparent),
+    radial-gradient(ellipse 45% 40% at 10% 90%, rgba(14, 165, 164, .12), transparent),
+    $adm-bg;
+  padding: 20px;
+  .login-card {
+    width: min(920px, 100%); display: grid; grid-template-columns: 1.05fr 1fr;
+    background: $adm-surface; border-radius: $r-lg; box-shadow: $shadow-3; overflow: hidden;
+    @include tablet { grid-template-columns: 1fr; }
+  }
+  .login-hero {
+    background: linear-gradient(160deg, #1e1b4b, #312e81 55%, #4f46e5);
+    color: #fff; padding: 54px 44px; display: flex; flex-direction: column; justify-content: space-between;
+    .lh-brand { font-family: $font-display; font-size: 1.7rem; font-weight: 700; span { color: #c7d2fe; } }
+    .lh-sub { font-size: .72rem; letter-spacing: .34em; text-transform: uppercase; color: #a5b4fc; margin-top: 4px; }
+    h2 { font-size: 1.7rem; line-height: 1.25; margin: 34px 0 12px; font-weight: 600; }
+    p { color: #c7d2fe; font-size: .92rem; max-width: 330px; }
+    .lh-roles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 30px;
+      .role-chip { background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.14); padding: 10px 14px; border-radius: 10px; font-size: .78rem; cursor: pointer; transition: all .2s;
+        b { display: block; font-size: .84rem; }
+        span { color: #c7d2fe; font-size: .7rem; }
+        &:hover { background: rgba(255,255,255,.16); transform: translateY(-2px); } } }
+  }
+  .login-form { padding: 54px 44px; display: flex; flex-direction: column; justify-content: center;
+    h3 { font-size: 1.35rem; margin-bottom: 6px; }
+    .lf-hint { color: $adm-text-soft; font-size: .88rem; margin-bottom: 28px; }
+    .err { color: $adm-danger; font-size: .84rem; margin-top: 12px; min-height: 20px; } }
+}
+
+// ---------- App shell ----------
+.app { display: none; min-height: 100dvh;
+  &.ready { display: block; } }
+
+.topbar {
+  position: sticky; top: 0; z-index: 90;
+  height: 62px; display: flex; align-items: center; gap: 18px;
+  padding: 0 26px; background: rgba(255, 255, 255, .88); backdrop-filter: blur(12px);
+  border-bottom: 1px solid $adm-border;
+  .tb-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.02rem; letter-spacing: .02em;
+    .logo-dot { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, $adm-primary, $adm-accent); display: grid; place-items: center; color: #fff; font-family: $font-display; font-weight: 700; font-size: 1rem; } }
+  .tb-sub { font-size: .68rem; color: $adm-text-soft; text-transform: uppercase; letter-spacing: .22em; }
+  .tb-spacer { flex: 1; }
+  .icon-btn { position: relative; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; color: $adm-text-soft; font-size: 1.05rem; border: 1px solid transparent;
+    &:hover { background: $adm-bg; border-color: $adm-border; color: $adm-primary; }
+    .n-dot { position: absolute; top: 7px; right: 7px; width: 9px; height: 9px; border-radius: 50%; background: $adm-danger; border: 2px solid #fff; transform: scale(0); transition: transform .2s;
+      &.on { transform: scale(1); } } }
+  .tb-user { display: flex; align-items: center; gap: 11px; padding: 5px 12px 5px 5px; border-radius: $r-pill; border: 1px solid $adm-border; cursor: default;
+    .avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: .8rem; }
+    .u-name { font-weight: 600; font-size: .86rem; line-height: 1.15; }
+    .u-role { font-size: .68rem; color: $adm-text-soft; text-transform: uppercase; letter-spacing: .08em; } }
+}
+
+.layout { display: grid; grid-template-columns: 244px 1fr; min-height: calc(100dvh - 62px);
+  @include tablet { grid-template-columns: 64px 1fr; } }
+
+.sidebar {
+  background: $adm-surface; border-right: 1px solid $adm-border; padding: 18px 12px;
+  position: sticky; top: 62px; height: calc(100dvh - 62px); overflow-y: auto; @include scrollbar;
+  .nav-sec { margin-bottom: 18px; }
+  .nav-label { font-size: .64rem; text-transform: uppercase; letter-spacing: .22em; color: $adm-text-soft; padding: 8px 12px 6px;
+    @include tablet { display: none; } }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 10px 12px; border-radius: 10px; color: $adm-text-soft; font-size: .9rem; font-weight: 500;
+    margin: 2px 0; transition: all .18s; text-align: left;
+    .n-ico { width: 22px; text-align: center; font-size: 1rem; flex-shrink: 0; }
+    .n-txt { white-space: nowrap; @include tablet { display: none; } }
+    &:hover { background: $adm-bg; color: $adm-text; }
+    &.active { background: linear-gradient(120deg, rgba(79, 70, 229, .1), rgba(14, 165, 164, .08)); color: $adm-primary; font-weight: 700;
+      .n-ico { color: $adm-primary; } } }
+}
+
+.main { padding: 26px 30px 60px; overflow-x: hidden; @include mobile { padding: 18px 14px 60px; } }
+
+.page-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+  h1 { font-size: 1.42rem; font-weight: 800; letter-spacing: -.01em; }
+  .ph-sub { color: $adm-text-soft; font-size: .88rem; margin-top: 2px; }
+  .ph-actions { display: flex; gap: 10px; flex-wrap: wrap; } }
+
+// ---------- Buttons ----------
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border-radius: 10px; font-size: .86rem; font-weight: 600;
+  transition: all .2s; border: 1px solid transparent;
+  &.primary { background: linear-gradient(120deg, $adm-primary, $adm-primary-2); color: #fff; box-shadow: 0 4px 14px rgba(79, 70, 229, .28);
+    &:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(79, 70, 229, .36); } }
+  &.outline { border-color: $adm-border; color: $adm-text; background: $adm-surface;
+    &:hover { border-color: $adm-primary; color: $adm-primary; } }
+  &.success { background: $adm-success; color: #fff; }
+  &.warn { background: $adm-warn; color: #fff; }
+  &.danger { background: $adm-danger; color: #fff; }
+  &.soft { background: rgba(79, 70, 229, .08); color: $adm-primary;
+    &:hover { background: rgba(79, 70, 229, .15); } }
+  &.sm { padding: 6px 12px; font-size: .78rem; border-radius: 8px; }
+  &.xs { padding: 4px 9px; font-size: .72rem; border-radius: 7px; }
+  &:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+}
+
+// ---------- KPI cards ----------
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 16px; margin-bottom: 26px; }
+.kpi {
+  @include card; padding: 20px 22px; position: relative; overflow: hidden;
+  transition: transform .25s, box-shadow .25s;
+  &:hover { transform: translateY(-3px); box-shadow: $shadow-2; }
+  .k-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .16em; color: $adm-text-soft; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .k-value { font-size: 1.75rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .k-delta { margin-top: 8px; font-size: .78rem; font-weight: 600; color: $adm-success; &.down { color: $adm-danger; } &.flat { color: $adm-text-soft; } }
+  .k-spark { position: absolute; right: -8px; bottom: -8px; opacity: .1; font-size: 4rem; font-family: $font-display; font-weight: 800; }
+  &.accent { background: linear-gradient(135deg, $adm-primary, $adm-primary-2); border: none; color: #fff;
+    .k-label { color: #c7d2fe; } .k-delta { color: #a7f3d0; } }
+  &.teal { background: linear-gradient(135deg, #0d9488, $adm-accent); border: none; color: #fff; .k-label { color: #99f6e4; } }
+  &.amber { background: linear-gradient(135deg, #d97706, $adm-warn); border: none; color: #fff; .k-label { color: #fde68a; } }
+  &.rose { background: linear-gradient(135deg, #e11d48, #fb7185); border: none; color: #fff; .k-label { color: #fecdd3; } }
+}
+
+// ---------- Cards & grids ----------
+.card { @include card; padding: 22px; }
+.card-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+  h3 { font-size: 1.02rem; font-weight: 700; }
+  small { color: $adm-text-soft; font-weight: 400; } }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; @include tablet { grid-template-columns: 1fr; } }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; @include tablet { grid-template-columns: 1fr; } }
+.grid-21 { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; @include tablet { grid-template-columns: 1fr; } }
+
+// ---------- Tables ----------
+.tbl-wrap { @include card; padding: 0; overflow: auto; @include scrollbar; }
+table.data {
+  width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 640px;
+  thead th { text-align: left; padding: 13px 16px; font-size: .7rem; text-transform: uppercase; letter-spacing: .14em; color: $adm-text-soft; border-bottom: 1px solid $adm-border; background: #fafbfe; white-space: nowrap; }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid #f0f2f8; vertical-align: middle; }
+  tbody tr { transition: background .15s;
+    &:hover { background: #f8f9fe; }
+    &:last-child td { border-bottom: none; } }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .row-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+}
+
+// ---------- Badges ----------
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3.5px 11px; border-radius: $r-pill; font-size: .72rem; font-weight: 700; letter-spacing: .03em; white-space: nowrap;
+  &.b-gray { background: #eef1f6; color: $adm-text-soft; }
+  &.b-indigo { background: rgba(79, 70, 229, .1); color: $adm-primary; }
+  &.b-teal { background: rgba(14, 165, 164, .12); color: #0d9488; }
+  &.b-green { background: rgba(34, 197, 94, .12); color: #15803d; }
+  &.b-amber { background: rgba(245, 158, 11, .14); color: #b45309; }
+  &.b-red { background: rgba(239, 68, 68, .1); color: #b91c1c; }
+  &.b-blue { background: rgba(59, 130, 246, .12); color: #1d4ed8; }
+  &.b-pink { background: rgba(236, 72, 153, .1); color: #be185d; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+}
+
+// ---------- Status colors ----------
+.st-Available, .st-Completed, .st-Paid, .st-Approved, .st-Confirmed, .st-Received, .st-Served, .st-Seated { @extend .badge; background: rgba(34, 197, 94, .12); color: #15803d; }
+.st-Pending, .st-Unpaid, .st-Draft, .st-Inquiry, .st-Scheduled { @extend .badge; background: rgba(245, 158, 11, .14); color: #b45309; }
+.st-Preparing, .st-InProgress, .st-PartiallyPaid, .st-Quoted, .st-Ordered { @extend .badge; background: rgba(59, 130, 246, .12); color: #1d4ed8; }
+.st-Ready, .st-Occupied { @extend .badge; background: rgba(79, 70, 229, .1); color: $adm-primary; }
+.st-Cancelled, .st-NoShow, .st-Dirty, .st-Rejected, .st-Absent { @extend .badge; background: rgba(239, 68, 68, .1); color: #b91c1c; }
+.st-OutOfService { @extend .badge; background: #eef1f6; color: $adm-text-soft; }
+
+// ---------- Forms ----------
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
+.field label { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: $adm-text-soft; }
+.field .input, .field select, .field textarea {
+  padding: 10px 14px; border: 1px solid $adm-border; border-radius: 10px; background: #fff; width: 100%;
+  transition: border-color .2s, box-shadow .2s;
+  &:focus { outline: none; border-color: $adm-primary; box-shadow: 0 0 0 3px rgba(79, 70, 229, .12); } }
+.field textarea { resize: vertical; min-height: 76px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; @include mobile { grid-template-columns: 1fr; } }
+.form-grid .full { grid-column: 1 / -1; }
+.switch-row { display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+  input[type=checkbox] { width: 18px; height: 18px; accent-color: $adm-primary; } }
+
+// ---------- Modal ----------
+.modal {
+  position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; padding: 18px;
+  background: rgba(15, 18, 34, .5); backdrop-filter: blur(5px);
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+  &.show { opacity: 1; pointer-events: auto; }
+  .modal-card {
+    width: min(640px, 100%); max-height: 90dvh; overflow-y: auto; @include scrollbar;
+    background: $adm-surface; border-radius: 16px; box-shadow: $shadow-3; padding: 28px;
+    transform: translateY(14px) scale(.98); transition: transform .25s;
+    .modal.show & { transform: none; }
+    &.wide { width: min(860px, 100%); } }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+    h3 { font-size: 1.12rem; font-weight: 800; }
+    .close-x { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; color: $adm-text-soft; font-size: 1.15rem;
+      &:hover { background: $adm-bg; color: $adm-danger; } } }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+}
+
+// ---------- Toasts ----------
+.toast-wrap { position: fixed; bottom: 22px; right: 22px; z-index: 500; display: grid; gap: 10px; }
+.toast {
+  background: #1c2333; color: #fff; border-radius: 12px; padding: 13px 18px;
+  min-width: 250px; max-width: 380px; box-shadow: $shadow-3; font-size: .86rem;
+  border-left: 3px solid $adm-accent; animation: tIn .3s cubic-bezier(.22, 1, .36, 1);
+  &.success { border-left-color: $adm-success; }
+  &.error { border-left-color: $adm-danger; }
+  b { display: block; margin-bottom: 2px; font-size: .9rem; } }
+@keyframes tIn { from { transform: translateX(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+// ---------- POS table map ----------
+.floor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.table-tile {
+  @include card; padding: 18px 14px; text-align: center; cursor: pointer; position: relative;
+  transition: all .2s; border-top: 3px solid #22c55e;
+  &:hover { transform: translateY(-3px); box-shadow: $shadow-2; }
+  .t-num { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .t-cap { color: $adm-text-soft; font-size: .78rem; }
+  .t-sec { position: absolute; top: 10px; right: 10px; font-size: .64rem; color: $adm-text-soft; text-transform: uppercase; letter-spacing: .1em; }
+  &.st-Available { border-top-color: #22c55e; }
+  &.st-Occupied { border-top-color: #4f46e5; background: linear-gradient(180deg, rgba(79,70,229,.05), #fff); }
+  &.st-Reserved { border-top-color: #f59e0b; background: linear-gradient(180deg, rgba(245,158,11,.05), #fff); }
+  &.st-Dirty { border-top-color: #ef4444; }
+  &.st-OutOfService { border-top-color: #9aa0ab; opacity: .55; }
+  .t-order { margin-top: 10px; font-size: .74rem; color: $adm-text-soft; b { color: $adm-primary; } }
+}
+
+// ---------- Order list ----------
+.order-row { display: grid; grid-template-columns: auto 1fr auto auto; gap: 14px; align-items: center; padding: 13px 18px; border-bottom: 1px solid #f0f2f8; cursor: pointer; transition: background .15s;
+  &:hover { background: #f8f9fe; }
+  .o-num { font-weight: 800; font-variant-numeric: tabular-nums; font-size: .92rem; }
+  .o-info { b { font-size: .9rem; } .o-sub { color: $adm-text-soft; font-size: .78rem; } }
+  .o-total { font-weight: 800; font-variant-numeric: tabular-nums; }
+  @include tablet { grid-template-columns: 1fr auto; } }
+
+// ---------- Filters bar ----------
+.filter-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 18px;
+  select, input { padding: 8px 13px; border: 1px solid $adm-border; border-radius: 10px; background: #fff; min-width: 130px;
+    &:focus { outline: none; border-color: $adm-primary; } } }
+
+// ---------- Kitchen tickets (admin quick view + KDS shared) ----------
+.kds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.ticket {
+  @include card; padding: 0; overflow: hidden; border-top: 4px solid $adm-accent;
+  &.late { border-top-color: $adm-danger; animation: pulse-late 1.6s infinite; }
+  &.warn { border-top-color: $adm-warn; }
+  .tk-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #fafbfe; border-bottom: 1px solid $adm-border;
+    .tk-num { font-weight: 800; font-size: .92rem; }
+    .tk-meta { font-size: .72rem; color: $adm-text-soft; }
+    .tk-timer { font-weight: 800; font-variant-numeric: tabular-nums; font-size: .95rem; color: $adm-success;
+      &.warn { color: $adm-warn; } &.late { color: $adm-danger; } } }
+  .tk-lines { padding: 8px 16px; min-height: 60px; }
+  .tk-line { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed #eef1f6; font-size: .9rem;
+    &:last-child { border-bottom: none; }
+    .qty { font-weight: 800; color: $adm-primary; margin-right: 8px; }
+    .mod { display: block; font-size: .72rem; color: $adm-warn; font-weight: 600; }
+    .note { display: block; font-size: .72rem; color: $adm-text-soft; font-style: italic; } }
+  .tk-foot { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid $adm-border;
+    .btn { flex: 1; justify-content: center; } } }
+@keyframes pulse-late { 0%, 100% { box-shadow: $shadow-1; } 50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, .12); } }
+
+// ---------- Charts ----------
+.chart-box { position: relative; width: 100%; canvas { width: 100% !important; } }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; font-size: .8rem; color: $adm-text-soft;
+  .lg { display: flex; align-items: center; gap: 6px;
+    .sw { width: 11px; height: 11px; border-radius: 3px; } } }
+
+// ---------- Menu manager ----------
+.menu-mgr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.mi-card { @include card; overflow: hidden;
+  .mi-img { height: 110px; background: linear-gradient(135deg, #eef1f6, #e3e8f2); display: grid; place-items: center; color: $adm-text-soft; font-family: $font-display; font-size: 1.6rem; font-weight: 800; }
+  .mi-body { padding: 14px 16px;
+    .mi-name { font-weight: 700; font-size: .95rem; }
+    .mi-cat { font-size: .7rem; color: $adm-text-soft; text-transform: uppercase; letter-spacing: .1em; }
+    .mi-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
+      .mi-price { font-weight: 800; color: $adm-primary; font-variant-numeric: tabular-nums; } } }
+  &.unavailable { opacity: .55; } }
+
+// ---------- Empty state ----------
+.empty { text-align: center; padding: 60px 20px; color: $adm-text-soft;
+  .e-ico { font-size: 2.6rem; font-family: $font-display; color: #c3c9d9; margin-bottom: 10px; }
+  b { display: block; color: $adm-text; margin-bottom: 4px; } }
+
+// ---------- Progress bars ----------
+.pbar { height: 8px; border-radius: $r-pill; background: #eef1f6; overflow: hidden;
+  .pbar-fill { height: 100%; border-radius: $r-pill; background: linear-gradient(90deg, $adm-primary, $adm-accent); transition: width .5s; } }
+
+// ---------- Inventory low stock ----------
+.lowstock { animation: pulse-late 2s infinite; }
+
+// ---------- Deposit / finance ----------
+.fin-tile { @include card; padding: 18px 20px; text-align: center;
+  .f-val { font-size: 1.45rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .f-lab { font-size: .72rem; text-transform: uppercase; letter-spacing: .14em; color: $adm-text-soft; margin-top: 4px; }
+  &.pos .f-val { color: $adm-success; }
+  &.neg .f-val { color: $adm-danger; } }
+
+// ---------- Event pipeline ----------
+.pipeline { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; @include scrollbar;
+  .pipe-step { flex: 1; min-width: 120px; text-align: center; padding: 10px 8px; border-radius: 10px; background: #eef1f6; color: $adm-text-soft; font-size: .76rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    &.done { background: rgba(34, 197, 94, .12); color: #15803d; }
+    &.current { background: linear-gradient(120deg, $adm-primary, $adm-primary-2); color: #fff; box-shadow: 0 4px 12px rgba(79, 70, 229, .3); } } }
+
+.task-check { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed #eef1f6; font-size: .9rem;
+  &:last-child { border: none; }
+  input[type=checkbox] { width: 17px; height: 17px; accent-color: $adm-success; }
+  &.done label { text-decoration: line-through; color: $adm-text-soft; } }
+
+// ---------- Notifications panel ----------
+.notif-panel { position: absolute; top: 58px; right: 24px; width: 360px; max-height: 70dvh; overflow-y: auto; @include card; z-index: 120; box-shadow: $shadow-3; display: none;
+  &.open { display: block; animation: tIn .25s; }
+  .np-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid $adm-border; font-weight: 800; }
+  .np-item { padding: 13px 18px; border-bottom: 1px solid #f0f2f8; cursor: pointer; transition: background .15s;
+    &:hover { background: #f8f9fe; }
+    b { font-size: .88rem; } p { font-size: .8rem; color: $adm-text-soft; } time { font-size: .7rem; color: #a5adbd; }
+    &.unread { background: rgba(79, 70, 229, .045); border-left: 3px solid $adm-primary; } } }
+
+// ---------- Print (receipt) ----------
+@media print {
+  .topbar, .sidebar, .ph-actions, .modal-actions { display: none !important; }
+  .layout { grid-template-columns: 1fr; }
+}
+
+// ---------- Misc ----------
+.mono { font-family: $font-mono; }
+.muted { color: $adm-text-soft; }
+.right { text-align: right; }
+.mt { margin-top: 18px; }
+.mb { margin-bottom: 18px; }
+.hidden { display: none !important; }
+.flex { display: flex; align-items: center; gap: 10px; }
+.spacer { flex: 1; }
+.wrap { flex-wrap: wrap; }
+.link { color: $adm-primary; font-weight: 600; &:hover { text-decoration: underline; } }
