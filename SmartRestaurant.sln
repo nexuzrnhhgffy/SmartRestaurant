@@ -1,48 +1,40 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{578EEDB3-AC59-4E1B-8CCB-A5168389FB97}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRestaurant.Api", "src\Api\SmartRestaurant.Api.csproj", "{A1000001-0000-0000-0000-000000000001}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRestaurant.Domain", "src\SmartRestaurant.Domain\SmartRestaurant.Domain.csproj", "{1C424302-D14F-41C4-A613-86524915C67C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRestaurant.Infrastructure", "src\Infrastructure\SmartRestaurant.Infrastructure.csproj", "{A1000002-0000-0000-0000-000000000002}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRestaurant.Application", "src\SmartRestaurant.Application\SmartRestaurant.Application.csproj", "{D90452F8-3B60-42CE-A1C7-1FEE550BF4F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRestaurant.Application", "src\Application\SmartRestaurant.Application.csproj", "{A1000003-0000-0000-0000-000000000003}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRestaurant.Infrastructure", "src\SmartRestaurant.Infrastructure\SmartRestaurant.Infrastructure.csproj", "{E0FAA64B-0EB3-4EBD-B1F1-43CE2F81EE76}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRestaurant.Domain", "src\Domain\SmartRestaurant.Domain.csproj", "{A1000004-0000-0000-0000-000000000004}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRestaurant.Api", "src\SmartRestaurant.Api\SmartRestaurant.Api.csproj", "{D87A5B3B-FFDD-474F-89D9-1D7F6B7480D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartRestaurant.Desktop", "desktop\SmartRestaurant.Desktop.csproj", "{A1000005-0000-0000-0000-000000000005}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1C424302-D14F-41C4-A613-86524915C67C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1C424302-D14F-41C4-A613-86524915C67C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1C424302-D14F-41C4-A613-86524915C67C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1C424302-D14F-41C4-A613-86524915C67C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D90452F8-3B60-42CE-A1C7-1FEE550BF4F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D90452F8-3B60-42CE-A1C7-1FEE550BF4F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D90452F8-3B60-42CE-A1C7-1FEE550BF4F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D90452F8-3B60-42CE-A1C7-1FEE550BF4F8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E0FAA64B-0EB3-4EBD-B1F1-43CE2F81EE76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E0FAA64B-0EB3-4EBD-B1F1-43CE2F81EE76}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E0FAA64B-0EB3-4EBD-B1F1-43CE2F81EE76}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E0FAA64B-0EB3-4EBD-B1F1-43CE2F81EE76}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D87A5B3B-FFDD-474F-89D9-1D7F6B7480D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D87A5B3B-FFDD-474F-89D9-1D7F6B7480D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D87A5B3B-FFDD-474F-89D9-1D7F6B7480D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D87A5B3B-FFDD-474F-89D9-1D7F6B7480D1}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{1C424302-D14F-41C4-A613-86524915C67C} = {578EEDB3-AC59-4E1B-8CCB-A5168389FB97}
-		{D90452F8-3B60-42CE-A1C7-1FEE550BF4F8} = {578EEDB3-AC59-4E1B-8CCB-A5168389FB97}
-		{E0FAA64B-0EB3-4EBD-B1F1-43CE2F81EE76} = {578EEDB3-AC59-4E1B-8CCB-A5168389FB97}
-		{D87A5B3B-FFDD-474F-89D9-1D7F6B7480D1} = {578EEDB3-AC59-4E1B-8CCB-A5168389FB97}
+		{A1000001-0000-0000-0000-000000000001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1000001-0000-0000-0000-000000000001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1000001-0000-0000-0000-000000000001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1000001-0000-0000-0000-000000000001}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1000002-0000-0000-0000-000000000002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1000002-0000-0000-0000-000000000002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1000002-0000-0000-0000-000000000002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1000002-0000-0000-0000-000000000002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1000003-0000-0000-0000-000000000003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1000003-0000-0000-0000-000000000003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1000003-0000-0000-0000-000000000003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1000003-0000-0000-0000-000000000003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1000004-0000-0000-0000-000000000004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1000004-0000-0000-0000-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1000004-0000-0000-0000-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1000004-0000-0000-0000-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1000005-0000-0000-0000-000000000005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1000005-0000-0000-0000-000000000005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1000005-0000-0000-0000-000000000005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1000005-0000-0000-0000-000000000005}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

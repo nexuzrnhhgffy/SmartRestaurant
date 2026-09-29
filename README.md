@@ -1,140 +1,111 @@
-# Aurora Smart Restaurant 🍽
+# 🫖 Zafaran — Smart Restaurant Operating System
 
-A complete, production-shaped **Smart Restaurant Platform** — dine-in POS, online ordering,
-kitchen display, events & catering branch, inventory, accounting, staff management and
-role-based dashboards. Built with **ASP.NET Core 8 (.NET) + EF Core + SQLite** on the backend
-and a hand-crafted **HTML / SCSS / JS** frontend (zero UI frameworks, fully custom design system).
+A complete, production-grade restaurant platform: **ASP.NET Core 8 server + WPF Windows desktop app + customer web ordering + mobile-ready JWT API** — with push-based Kitchen Display (SignalR), **Zarinpal & Iranian bank gateways**, **recipe-driven inventory auto-deduction**, multi-branch, **ESC/POS printing**, double-entry accounting, and **unlimited live camera streams**.
 
-![stack](https://img.shields.io/badge/.NET-8.0-512BD4) ![db](https://img.shields.io/badge/EF_Core-SQLite-00695C) ![fe](https://img.shields.io/badge/frontend-HTML%20%2F%20SCSS%20%2F%20JS-E8A33D)
-
----
-
-## ✨ Feature Matrix
-
-| Module | Highlights |
-|---|---|
-| 🛒 **Online Restaurant** | Public site, menu with modifiers, cart, coupons, delivery & pickup, live tax/service/delivery fee engine, review submission, table reservations, event quote requests |
-| 🧾 **Dine-in POS** | Floor map per section, table statuses (available/reserved/occupied/dirty/OOS), walk-in & QR-ready flows, open bills, add/remove items, tips, split-aware payments (cash change calculator) |
-| 👨‍🍳 **Kitchen (KDS)** | Standalone full-screen display, 3-column ticket flow (New → In Progress → Ready), per-line bumping, late-ticket alerts (>12m/>20m) with audio chime, station filters (Grill/Fry/Cold/Pastry/Bar/HotLine) |
-| 🎉 **Events Branch** | Packages (wedding/corporate/birthday...), inquiry → quote → deposit pipeline, quote auto-pricing per guest, operational checklists with staff assignment |
-| 📦 **Inventory** | Ingredients, suppliers, purchase orders (draft→ordered→received), stock movements ledger (purchase/usage/waste/adjustment), low-stock alerts pushed to notifications |
-| 💰 **Accounting** | Expenses by category, payroll generation with overtime & bonuses, paid tracking, full **P&L report** (revenue, food cost %, expenses, payroll, net margin) with charts |
-| 👔 **Staff & HR** | Role accounts, PIN fast-login (POS stations), shifts scheduling, attendance check-in/out with hours, payroll per employee |
-| 🤝 **Customers & Loyalty** | CRM with auto loyalty points per $, Bronze→Platinum tiers, spend history |
-| 📊 **Dashboards per role** | KPI cards, revenue trend, hourly sales, top sellers, order-type & payment mix — every role sees only its own modules |
-| 🔔 **Notifications** | In-app center with unread badges — low stock, new orders, reservations, event inquiries, pending reviews |
-| 🏷 **Marketing** | Percent/fixed coupons with min-order, usage limits & expiry; moderation + public replies for reviews |
-| ⚙ **Settings** | Restaurant identity, tax/service/delivery rates, loyalty rate, ordering & reservation toggles (SuperAdmin) |
-
-### Roles
-`SuperAdmin` · `Manager` · `Cashier` · `Waiter` · `Chef` · `Accountant` · `Customer`
-Each role gets a different sidebar, landing module and API permissions (JWT role policies).
-
----
-
-## 🚀 Quick Start
-
-```bash
-# 1) requirements: .NET 8 SDK
-cd src/SmartRestaurant.Api
-dotnet run --urls http://localhost:5080
-
-# 2) open
-#    Public site  → http://localhost:5080/
-#    Admin panel  → http://localhost:5080/admin.html
-#    Kitchen KDS  → http://localhost:5080/kitchen.html
-#    Swagger API  → http://localhost:5080/swagger
+```
+┌────────────────────────┐      ┌──────────────┐  ┌───────────────┐  ┌──────────────┐
+│  SmartRestaurant.Server │ ⇄──  │ Zafaran      │  │ Customer Web  │  │ Mobile apps  │
+│  ASP.NET Core 8 API     │      │ Desktop(WPF) │  │ ordering site │  │ (same JWT)   │
+│  SignalR · EF · SQLite  │      │ 14 dashboards│  │ wwwroot       │  │              │
+└───────────┬────────────┘      └──────────────┘  └───────────────┘  └──────────────┘
+            │
+   ┌────────┴─────────┐   ┌────────────────┐   ┌──────────────┐
+   │ ESC/POS printers │   │ IP cameras     │   │ Zarinpal /   │
+   │ (TCP 9100)       │   │ MJPEG proxy    │   │ Zibal / IDPay│
+   └──────────────────┘   └────────────────┘   │ /Pay.ir/NextPay/ Mellat·Saman·Parsian │
+                                               └──────────────┘
 ```
 
-The SQLite database (`App_Data/smartrestaurant.db`) is **created and seeded automatically**
-on first start: 9 users, 13 tables, 15 dishes with modifiers, 30 days of historical orders
-for analytics, live kitchen tickets, events, expenses, payroll, reviews and more.
+## ✨ Feature matrix
 
-### Demo Accounts
+| Area | Details |
+|---|---|
+| **Orders** | Dine-in / Takeaway / Delivery, order state machine (Pending→Confirmed→Preparing→Ready→Served→Completed→Cancelled), per-item KDS stations, running-event auto discount, 9% VAT |
+| **KDS (real-time)** | SignalR push tickets per branch group, per-station filters (Grill/Hot/Cold/Dessert/Bar), bump bars (Queued→Cooking→Ready→Delivered), late-ticket timers + audio chime |
+| **Payments** | Full REST impls: **Zarinpal v4, Zibal, IDPay, Pay.ir, NextPay** · documented sandbox stubs: **Mellat, Saman, Parsian, Pasargad, Novin** (SOAP notes inline) · internal sandbox bank simulator page · cash/POS shortcuts · gateway config CRUD |
+| **Inventory** | Recipe (BOM) per menu item → **auto stock deduction on order completion** → StockMovement ledger → low-stock notifications (Manager + Inventory) |
+| **Multi-branch** | Branch-scoped entities, SuperAdmin sees all / staff see own, branch comparison report, per-branch tables/printers/cameras |
+| **Accounting** | Iranian chart of accounts, **auto double-entry journal per sale** (Dr Cash/AR · Cr Revenue · Cr VAT), expenses w/ auto journal, trial balance, P&L |
+| **Printing** | ESC/POS byte-level encoder (init/align/bold/size/codepage/cut), **Persian-safe raster mode** (SkiaSharp → 1-bpp GS v 0 bitmap), TCP 9100 sender, PrintJob audit trail, kitchen tickets + guest receipts |
+| **Cameras** | Server-side MJPEG proxy + **built-in demo stream generator** (SkiaSharp frames — zero hardware needed), WPF native MJPEG viewer (no VLC/WebView2), RTSP via MediaMTX documented |
+| **Auth** | JWT (role claim) + refresh tokens, PBKDF2-SHA256 100k iterations, 8 roles, audit log |
+| **Web** | Customer SPA (menu, cart, checkout → gateway redirect, live order tracking) + quick web admin |
+| **API** | Swagger UI at `/swagger`, versioned `/api/v1`, mobile-ready, SignalR hubs `/hubs/kds` + `/hubs/notifications` |
 
-| Role | Email | Password |
+## 🚀 Quick start (server)
+
+```bash
+cd src/Api
+dotnet run -c Release          # http://0.0.0.0:5000 — DB auto-creates + seeds
+```
+
+- Swagger: `http://localhost:5000/swagger`
+- Customer site: `http://localhost:5000/`
+- Web admin: `http://localhost:5000/admin/`
+
+> SQL Server instead of SQLite: change `ConnectionStrings:Default` and `UseSqlite` → `UseSqlServer` in `Infrastructure/ServiceRegistration.cs`, then add migrations.
+
+## 🪟 Windows app
+
+Open `desktop/SmartRestaurant.Desktop.csproj` in Visual Studio 2022 (or `dotnet run` on Windows). Point the login screen at the server URL (default `http://localhost:5000`), pick a demo account, done. Settings persist in `%AppData%/Zafaran/desktop-settings.json`.
+
+## 👤 Demo accounts
+
+| Role | Username | Password |
 |---|---|---|
-| SuperAdmin | superadmin@restaurant.com | Super@123 |
-| Manager | manager@restaurant.com | Manager@123 |
-| Cashier | cashier@restaurant.com | Cashier@123 |
-| Waiter | waiter@restaurant.com | Waiter@123 |
-| Chef | chef@restaurant.com | Chef@123 |
-| Accountant | accountant@restaurant.com | Account@123 |
-| Customer | guest@restaurant.com | Guest@123 |
+| SuperAdmin | `superadmin` | `Admin@123` |
+| Manager | `manager` / `manager2` | `Manager@123` |
+| Cashier | `cashier` | `Cashier@123` |
+| Waiter | `waiter` / `waiter2` | `Waiter@123` |
+| Kitchen (KDS) | `kitchen` | `Kitchen@123` |
+| Accountant | `accountant` | `Acc@123` |
+| Inventory | `inventory` | `Stock@123` |
+| Customer | `customer` | `Customer@123` |
 
-POS PIN fast-login: `1111` SuperAdmin · `2222` Manager · `3333` Cashier · `4444` Waiter · `5555` Chef · `6666` Accountant
+## 🔌 API quick tour
 
-Try coupon **WELCOME15** on an online order 🎟
+```bash
+# login
+curl -X POST localhost:5000/api/v1/auth/login -H 'Content-Type: application/json' \
+     -d '{"userName":"cashier","password":"Cashier@123"}'
 
----
+# create a dine-in order (Authorization: Bearer <token>)
+curl -X POST localhost:5000/api/v1/orders -H 'Content-Type: application/json' -H 'Authorization: Bearer '$T \
+     -d '{"type":1,"items":[{"menuItemId":"<guid>","quantity":2,"notes":"extra saffron"}]}'
 
-## 🏗 Architecture (improved Clean-ish pattern)
+# confirm → kitchen ticket prints + KDS push
+curl -X PUT localhost:5000/api/v1/orders/<id>/status -d '{"status":2}' -H 'Authorization: Bearer '$T
+
+# take payment (sandbox Zarinpal) → visit redirectUrl → auto-verify → order Paid
+curl -X POST localhost:5000/api/v1/payments/initiate -d '{"orderId":"<id>","gateway":10}' -H 'Authorization: Bearer '$T
+
+# complete → stock auto-deducted + journal posted + receipt queued
+curl -X PUT localhost:5000/api/v1/orders/<id>/status -d '{"status":6}' -H 'Authorization: Bearer '$T
+```
+
+Mobile apps: same endpoints + `POST /auth/refresh`, `GET /menu/items`, `POST /orders`, `GET /orders/{id}` — nothing else needed.
+
+## 📹 Cameras
+
+Demo cameras (`demo:grill` …) render animated frames **server-side** — the whole feature works with zero hardware. Real LAN MJPEG cameras: just set the URL (server proxies them, fixing CORS/mixed-content). RTSP cameras: run [MediaMTX](https://github.com/bluenviron/mediamtin) or go2rtc in front and point the camera to its MJPEG/HLS output.
+
+## 🖨 Printers
+
+Seed defaults point to `127.0.0.1:9100/9101` — change Host/Port in the desktop Settings/Printers. `UseRasterMode=true` renders receipts to a 1-bpp image (guaranteed Persian output on any ESC/POS printer). Printing failures never block the order flow — jobs are logged in `PrintJobs`.
+
+## 🧪 E2E verified
+
+`scripts/e2e_test.py` walks the full pipeline: order → confirm → KDS ticket → sandbox Zarinpal → capture → complete → **stock −0.60 kg beef** → balanced journal → dashboard totals. ✅
+
+## 📂 Structure
 
 ```
 SmartRestaurant/
 ├── src/
-│   ├── SmartRestaurant.Domain/            # Entities, enums, domain rules (no dependencies)
-│   │   └── Entities/{Identity,Menu,Orders,Tables,Reservations,Inventory,Events,Accounting,Customers,Notifications,Settings}
-│   ├── SmartRestaurant.Application/       # DTOs + service interfaces (contracts)
-│   │   ├── Dtos/                          # Immutable record DTOs for every module
-│   │   └── Interfaces/IServices.cs        # 16 service contracts
-│   ├── SmartRestaurant.Infrastructure/    # EF Core, services, auth, seeding
-│   │   ├── Data/AppDbContext.cs           # Fluent config, global soft-delete query filters, decimal precision
-│   │   ├── Data/DbSeeder.cs               # Rich demo data (30-day analytics history)
-│   │   ├── Data/Migrations/               # EF Core migration
-│   │   └── Services/                      # 16 service implementations (JWT auth, pricing engine, KDS, P&L...)
-│   └── SmartRestaurant.Api/               # HTTP layer
-│       ├── Controllers/ApiControllers.cs  # 15 controllers, role-based authorization
-│       └── Program.cs                     # DI, JWT bearer, CORS, Swagger, static frontend hosting
-├── frontend/                              # Served by Kestrel (no Node needed at runtime)
-│   ├── index.html                         # Public restaurant site
-│   ├── admin.html                         # Role dashboard SPA shell
-│   ├── kitchen.html                       # Kitchen Display System
-│   ├── scss/                              # Design system (variables/mixins) + 3 themes
-│   ├── css/                               # Compiled CSS
-│   ├── js/                                # core.js (API client) + app.js + admin.js/admin2.js + charts.js + kitchen.js
-│   └── assets/img/                        # Branded SVG artwork
-└── docs/
+│   ├── Domain/          # entities + enums (EF-free)
+│   ├── Application/     # DTOs, services contracts, JWT, gateways, ESC/POS
+│   ├── Infrastructure/  # EF Core DbContext, seed, business services, SignalR hubs
+│   └── Api/             # controllers, middleware, camera streams, wwwroot (web)
+├── desktop/             # WPF app: login, role shell, 14 dashboards, SignalR client
+└── WORKLOG.md           # engineering log
 ```
-
-**Patterns used:** Layered Clean Architecture with dependency inversion · Repository-via-DbContext ·
-DTO boundary (records) · Service layer per bounded module · Global soft-delete query filter ·
-JWT claims-based RBAC · Option-pattern configuration · Auto-migration + idempotent seeding ·
-Polling-based realtime KDS (5–8 s) with audio feedback.
-
-### Security notes
-- BCrypt password hashing, JWT bearer (12 h), role policies on every mutating endpoint
-- Anonymous endpoints limited to: public menu/settings/packages/reviews, coupon validation,
-  reservation & event inquiry forms, and guest order creation
-- Soft delete filter applied globally at model level
-
----
-
-## 🔧 Development
-
-```bash
-# rebuild SCSS after editing scss/
-sass frontend/scss/public.scss frontend/css/public.css
-sass frontend/scss/admin.scss  frontend/css/admin.css
-sass frontend/scss/kitchen.scss frontend/css/kitchen.css
-
-# reset demo data
-rm src/SmartRestaurant.Api/App_Data/smartrestaurant.db*
-
-# run the API test suite (while the app is running)
-bash scripts/smoke_test.sh   # 41 checks: auth, RBAC, orders, KDS, payments, coupons, modules
-```
-
-### API surface (v1)
-`/api/auth` · `/api/users` · `/api/menu` · `/api/tables` · `/api/reservations` · `/api/orders` ·
-`/api/payments` · `/api/kitchen` · `/api/inventory` · `/api/events` · `/api/accounting` ·
-`/api/staff` · `/api/dashboard` · `/api/customers` · `/api/reviews` · `/api/coupons` ·
-`/api/notifications` · `/api/settings` — full docs at `/swagger`.
-
----
-
-## 🗺 Roadmap ideas
-- SignalR for push-based KDS & notifications
-- Stripe/PayPal gateway integration for online payments
-- Recipe–ingredient mapping to auto-deduct stock on order completion
-- Multi-branch support, printer integration (ESC/POS), mobile app over the same JWT API

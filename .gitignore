@@ -1,15 +1,16 @@
-# Build artifacts
+## .NET
 bin/
 obj/
-*.user
-.vs/
 *.db
-*.db-wal
 *.db-shm
+*.db-wal
+logs/
+.vs/
+*.user
+launchSettings.json
 
-# Frontend
+## node
 node_modules/
 
-# OS / IDE
+## misc
 .DS_Store
-Thumbs.db

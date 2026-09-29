@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zafaran — Web Admin</title><link rel="stylesheet" href="/assets/css/site.css">
+<style>.login{max-width:380px;margin:14vh auto;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:34px}
+input{width:100%;background:#121828;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-family:inherit;margin:6px 0 14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:22px 0}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
+.stat b{font-size:22px;color:var(--accent)}</style></head>
+<body><div class="container">
+<div id="login" class="login"><h2 style="margin-bottom:4px">🫖 Zafaran Web Admin</h2>
+<p style="color:var(--muted);font-size:13px;margin-bottom:16px">Full dashboards live in the <b>Zafaran Desktop</b> app — this is the quick view.</p>
+<label>Username</label><input id="u" value="manager"><label>Password</label><input id="p" type="password" value="Manager@123">
+<button class="btn primary" style="width:100%;justify-content:center" onclick="login()">Sign in</button>
+<p id="err" style="color:var(--red);font-size:12.5px;margin-top:10px"></p></div>
+<div id="dash" style="display:none"><h2 class="section-title">Branch overview</h2><div class="stats" id="stats"></div>
+<div class="grid" id="feed"></div></div></div>
+<script>
+const API=location.origin+"/api/v1";let T=null;
+async function api(p,o={}){const r=await fetch(API+p,{...o,headers:{"Content-Type":"application/json",Authorization:"Bearer "+T}});if(!r.ok)throw new Error((await r.json()).error);return r.json()}
+async function login(){try{const a=await api("/auth/login",{method:"POST",body:JSON.stringify({userName:u.value,password:p.value})});T=a.accessToken;sessionStorage.setItem("wt",T);login.style.display="none";dash.style.display="block";load()}catch(e){err.textContent="⚠ "+e.message}}
+async function load(){const d=await api("/reports/dashboard");
+stats.innerHTML=`<div class="stat">Today revenue<br><b>${Number(d.todayRevenue).toLocaleString()} T</b></div>
+<div class="stat">Orders<br><b>${d.todayOrders}</b></div><div class="stat">Open orders<br><b>${d.openOrders}</b></div>
+<div class="stat">Tables<br><b>${d.tablesOccupied}/${d.tablesTotal}</b></div><div class="stat">Low stock<br><b style="color:${d.lowStockCount?'var(--red)':'var(--green)'}">${d.lowStockCount}</b></div>`;
+const os=await api("/orders/active");
+feed.innerHTML=os.map(o=>`<div class="dish"><div class="body"><div class="name">#${o.orderNumber} — ${o.statusName}</div>
+<div class="desc">${o.items.map(i=>i.quantity+"× "+i.itemName).join(" • ")}</div>
+<div class="row"><span class="price">${Number(o.total).toLocaleString()} T</span><span style="color:var(--muted);font-size:12px">${o.paymentStatusName}</span></div></div></div>`).join("")||'<div class="empty">No active orders</div>'}
+if(sessionStorage.getItem("wt")){T=sessionStorage.getItem("wt");login.style.display="none";dash.style.display="block";load()}
+</script></body></html>

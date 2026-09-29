@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zafaran Restaurant — Online Ordering</title>
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="inner">
+    <div class="logo">🫖 ZAFARAN<small>RESTAURANT</small></div>
+    <div class="spacer"></div>
+    <a href="#trackBox" style="color:var(--muted);font-size:13.5px;text-decoration:none">Track order</a>
+    <button class="btn primary" onclick="toggleCart(true)">🛒 Cart <span class="badge" id="cartCount" style="display:none">0</span></button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container" id="heroContent">
+    <h1>Persian fire. <em>Saffron soul.</em><br>Delivered to your table.</h1>
+    <p>Charcoal kebabs, slow-simmered stews and hand-pulled desserts — order online and watch your ticket move through our kitchen in real time.</p>
+    <a class="btn primary" href="#menu">Explore the menu ↓</a>
+  </div>
+</header>
+
+<main class="container">
+  <h2 class="section-title" id="menu">Menu</h2>
+  <p class="section-sub">Fresh from the grill &amp; kitchen — priced in Toman</p>
+  <div class="cats" id="cats"></div>
+  <div class="grid" id="menuGrid"></div>
+
+  <div id="trackBox" style="margin:70px 0"></div>
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 Zafaran Restaurant — Tehran · Karaj · Cloud Kitchen</span>
+    <span>Payments: Zarinpal · Zibal · IDPay · Pay.ir · NextPay · Mellat · Saman · Parsian</span>
+  </div>
+</footer>
+
+<div class="drawer-backdrop" id="backdrop" onclick="toggleCart(false)"></div>
+<aside class="drawer" id="drawer">
+  <div class="head"><b style="font-size:17px">🛒 Your order</b>
+    <button class="btn" onclick="toggleCart(false)">✕</button></div>
+  <div class="items">
+    <div id="cartItems"></div>
+    <label>Your name</label><input id="fName" placeholder="Sara Seify">
+    <label>Phone</label><input id="fPhone" placeholder="0912 000 0000">
+    <label>Delivery address (leave empty for pickup)</label>
+    <textarea id="fAddr" rows="2" placeholder="Valiasr St., No. 124…"></textarea>
+  </div>
+  <div class="foot" id="cartFoot"></div>
+</aside>
+
+<div class="toast" id="toast"></div>
+<script src="/assets/js/app.js"></script>
+</body>
+</html>

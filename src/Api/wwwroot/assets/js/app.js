@@ -1,0 +1,162 @@
+/* Zafaran — single-page online ordering client (vanilla JS) */
+const API = location.origin + "/api/v1";
+let TOKEN = localStorage.getItem("zaf_token") || null;
+let MENU = [], CATS = [], CART = [], activeCat = null, BRANCH = null, trackId = null;
+
+const $ = (s) => document.querySelector(s);
+const money = (v) => Number(v).toLocaleString("en-US") + " T";
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: { "Content-Type": "application/json", ...(TOKEN ? { Authorization: "Bearer " + TOKEN } : {}), ...(opts.headers || {}) }
+  });
+  if (res.status === 401) { TOKEN = null; localStorage.removeItem("zaf_token"); }
+  if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+  return res.status === 204 ? null : res.json();
+}
+
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+/* ── boot ── */
+async function boot() {
+  try {
+    BRANCH = (await api("/branches"))[0];
+    [CATS, MENU] = await Promise.all([api("/menu/categories"), api("/menu/items?onlyAvailable=true&branchId=" + BRANCH.id)]);
+    renderCats(); renderMenu();
+    const ev = await fetch(API + "/events/running?branchId=" + BRANCH.id).catch(() => null);
+    if (ev && ev.ok) { const e = await ev.json(); if (e && e.isRunning) showEvent(e); }
+    if (trackId) pollOrder();
+  } catch (e) { toast("⚠ " + e.message); }
+}
+
+function showEvent(e) {
+  const chip = document.createElement("div");
+  chip.className = "event-chip";
+  chip.innerHTML = `${e.bannerEmoji || "🎉"} <b>${e.title}</b> — ${e.discountPercent}% off everything!`;
+  $("#heroContent").prepend(chip);
+}
+
+/* ── menu ── */
+function renderCats() {
+  const el = $("#cats");
+  el.innerHTML = `<button class="active" data-id="">🍽 All</button>` +
+    CATS.map(c => `<button data-id="${c.id}">${c.emoji} ${c.name}</button>`).join("");
+  el.querySelectorAll("button").forEach(b => b.onclick = () => {
+    el.querySelectorAll("button").forEach(x => x.classList.remove("active"));
+    b.classList.add("active"); activeCat = b.dataset.id || null; renderMenu();
+  });
+}
+
+function renderMenu() {
+  const items = MENU.filter(m => !activeCat || m.categoryId === activeCat);
+  $("#menuGrid").innerHTML = items.map(m => `
+    <article class="dish ${m.isAvailable ? "" : "soldout"}">
+      <div class="thumb">${m.categoryEmoji || "🍽️"}</div>
+      <div class="body">
+        <div class="name">${m.name}</div>
+        <div class="desc">${m.description || ""}</div>
+        <div class="meta">⏱ ${m.prepMinutes} min${m.calories ? " • 🔥 " + m.calories + " kcal" : ""}${m.isVegetarian ? " • 🌿 veg" : ""}${m.isSpicy ? " • 🌶 spicy" : ""}</div>
+        <div class="row">
+          <span class="price">${money(m.price)}</span>
+          ${m.isAvailable
+            ? `<button class="btn primary add" onclick="addToCart('${m.id}')">Add +</button>`
+            : `<span class="badge" style="background:#3a1d22;color:var(--red)">86'd</span>`}
+        </div>
+      </div>
+    </article>`).join("");
+}
+
+/* ── cart ── */
+function addToCart(id) {
+  const line = CART.find(l => l.id === id);
+  if (line) line.qty++; else CART.push({ id, qty: 1 });
+  paintCart(); toast("Added to cart 🛒");
+}
+function chQty(id, d) {
+  const line = CART.find(l => l.id === id); if (!line) return;
+  line.qty += d; if (line.qty <= 0) CART = CART.filter(l => l.id !== id);
+  paintCart();
+}
+function totals() {
+  const sub = CART.reduce((s, l) => s + l.qty * MENU.find(m => m.id === l.id).price, 0);
+  const disc = Math.round(sub * (window.__discount || 0) / 100);
+  const tax = Math.round((sub - disc) * 9 / 100);
+  return { sub, disc, tax, total: sub - disc + tax };
+}
+function paintCart() {
+  const box = $("#cartItems");
+  box.innerHTML = CART.length ? CART.map(l => {
+    const m = MENU.find(x => x.id === l.id);
+    return `<div class="line">
+      <span>${m.categoryEmoji || "🍽️"}</span>
+      <span class="n">${m.name}<br><small style="color:var(--muted)">${money(m.price)}</small></span>
+      <span class="qty"><button onclick="chQty('${l.id}',-1)">−</button>${l.qty}<button onclick="chQty('${l.id}',1)">+</button></span>
+    </div>`;
+  }).join("") : `<div class="empty">Your cart is empty — add something delicious 🍢</div>`;
+  const t = totals();
+  $("#cartFoot").innerHTML = `
+    <div class="tot"><span>Subtotal</span><span>${money(t.sub)}</span></div>
+    ${t.disc ? `<div class="tot"><span>Event discount</span><span style="color:var(--accent)">−${money(t.disc)}</span></div>` : ""}
+    <div class="tot"><span>VAT 9%</span><span>${money(t.tax)}</span></div>
+    <div class="tot grand"><span>Total</span><span class="v">${money(t.total)}</span></div>
+    <button class="btn primary" onclick="checkout()">Pay online with Zarinpal &nbsp;→</button>`;
+  const n = CART.reduce((s, l) => s + l.qty, 0);
+  $("#cartCount").textContent = n || "";
+  $("#cartCount").style.display = n ? "inline" : "none";
+}
+
+function toggleCart(open) {
+  $("#drawer").classList.toggle("open", open);
+  $("#backdrop").classList.toggle("open", open);
+}
+
+/* ── checkout ── */
+async function checkout() {
+  const name = $("#fName").value.trim(), phone = $("#fPhone").value.trim(), addr = $("#fAddr").value.trim();
+  if (!CART.length) return toast("Cart is empty");
+  if (!name || !phone) return toast("Please fill your name and phone");
+  const type = addr ? 3 : 2;
+  try {
+    const order = await api("/orders", { method: "POST", body: JSON.stringify({
+      type, branchId: BRANCH.id, customerName: name, customerPhone: phone,
+      deliveryAddress: addr || null,
+      items: CART.map(l => ({ menuItemId: l.id, quantity: l.qty }))
+    })});
+    const pay = await api("/payments/initiate", { method: "POST", body: JSON.stringify({ orderId: order.id, gateway: 10 }) });
+    trackId = order.id; sessionStorage.setItem("zaf_track", trackId);
+    toggleCart(false);
+    location.href = pay.redirectUrl; // bank page (sandbox auto-approves) → callback → result page
+  } catch (e) { toast("⚠ " + e.message); }
+}
+
+/* ── track order ── */
+async function pollOrder() {
+  const box = $("#trackBox");
+  const steps = ["Pending", "Confirmed", "Preparing", "Ready", "Completed"];
+  let last = "";
+  const tick = async () => {
+    if (!trackId) return;
+    try {
+      const o = await api("/orders/" + trackId);
+      if (o.statusName !== last) {
+        last = o.statusName;
+        const idx = steps.indexOf(o.statusName);
+        box.innerHTML = `<h2 class="section-title">Order #${o.orderNumber}</h2>
+          <p class="section-sub">${o.items.map(i => i.quantity + "× " + i.itemName).join(" • ")}</p>
+          <div class="track">${steps.map((s, i) => `
+            <div class="step ${i <= idx ? "done" : ""}"><div class="dot"></div><div>${s}</div></div>`).join("")}
+          </div>
+          <p style="color:var(--green);font-weight:700">Total ${money(o.total)} — ${o.paymentStatusName}</p>`;
+      }
+    } catch {}
+  };
+  tick(); clearInterval(window.__poll); window.__poll = setInterval(tick, 4000);
+}
+
+boot();
+trackId = sessionStorage.getItem("zaf_track");
+if (trackId) pollOrder();
