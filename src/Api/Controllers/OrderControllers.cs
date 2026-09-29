@@ -22,10 +22,11 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> Active([FromQuery] Guid? branchId) => Ok(await _orders.ListActiveAsync(branchId));
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> Get(Guid id) => Ok(await _orders.GetAsync(id));
 
     [HttpPost]
-    [Authorize(Policy = "")]
+    [AllowAnonymous]
     public async Task<IActionResult> Create(OrderCreateDto dto)
     {
         var me = Me();

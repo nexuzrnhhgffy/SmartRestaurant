@@ -65,9 +65,11 @@ public class EventsController : ControllerBase
     public EventsController(IEventService events) => _events = events;
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] Guid? branchId) => Ok(await _events.GetAllAsync(branchId));
 
     [HttpGet("running")]
+    [AllowAnonymous]
     public async Task<IActionResult> Running([FromQuery] Guid? branchId)
     {
         var e = await _events.GetRunningAsync(branchId);

@@ -62,7 +62,7 @@ public class BranchesController : ControllerBase
     private readonly IBranchService _branches;
     public BranchesController(IBranchService branches) => _branches = branches;
 
-    [HttpGet] public async Task<IActionResult> GetAll() => Ok(await _branches.GetAllAsync());
+    [HttpGet][AllowAnonymous] public async Task<IActionResult> GetAll() => Ok(await _branches.GetAllAsync());
     [HttpGet("mine")]
     public async Task<IActionResult> Mine([FromServices] IUserContext me) => Ok(await _branches.GetForUserAsync(me));
     [HttpPost]
@@ -87,8 +87,9 @@ public class MenuController : ControllerBase
     private readonly ISettingsService _settings;
     public MenuController(IMenuService menu, ISettingsService settings) => (_menu, _settings) = (menu, settings);
 
-    [HttpGet("categories")] public async Task<IActionResult> Categories() => Ok(await _menu.GetCategoriesAsync());
+    [HttpGet("categories")][AllowAnonymous] public async Task<IActionResult> Categories() => Ok(await _menu.GetCategoriesAsync());
     [HttpGet("items")]
+    [AllowAnonymous]
     public async Task<IActionResult> Items([FromQuery] Guid? branchId, [FromQuery] bool onlyAvailable = false)
         => Ok(await _menu.GetItemsAsync(branchId, onlyAvailable));
     [HttpPost("items")] public async Task<IActionResult> Upsert(MenuItemUpsertDto dto) => Ok(await _menu.UpsertAsync(dto));

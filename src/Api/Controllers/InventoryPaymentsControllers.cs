@@ -45,6 +45,7 @@ public class PaymentsController : ControllerBase
     public PaymentsController(IPaymentService payments) => _payments = payments;
 
     [HttpPost("initiate")]
+    [AllowAnonymous]
     public async Task<IActionResult> Initiate(PaymentInitiateDto dto)
     {
         var baseUrl = $"{Request.Scheme}://{Request.Host.Value}";
