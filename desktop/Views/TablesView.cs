@@ -15,10 +15,10 @@ public class TablesView : UserControl, IRefreshable
 
     public TablesView()
     {
-        var top = Ui.Row(Ui.Label("Floor plan", "#EEF1F7", 14, true),
-            Ui.Badge("🟩 Free", "#15301F", "#4ADE80") .Margin(14, 0, 0, 0).VAlign(VerticalAlignment.Center),
-            Ui.Badge("🟨 Occupied", "#3A2F14", "#F4B942") .Margin(6, 0, 0, 0).VAlign(VerticalAlignment.Center),
-            new Button { Content = "↻ Refresh", Margin = new Thickness(14, 0, 0, 0) });
+        var top = Ui.Row(Ui.Label("نقشه سالن", "#EEF1F7", 14, true),
+            Ui.Badge("🟩 خالی", "#15301F", "#4ADE80") .Margin(14, 0, 0, 0).VAlign(VerticalAlignment.Center),
+            Ui.Badge("🟨 اشغال", "#3A2F14", "#F4B942") .Margin(6, 0, 0, 0).VAlign(VerticalAlignment.Center),
+            new Button { Content = "↻ بروزرسانی", Margin = new Thickness(14, 0, 0, 0) });
         ((Button)top.Children[^1]).Click += async (_, _) => await RefreshAsync();
 
         var root = new DockPanel();
@@ -42,7 +42,7 @@ public class TablesView : UserControl, IRefreshable
             var tables = await App.Api.GetAsync<List<TableDto>>("/api/v1/tables?x=1" + branchQ);
             _grid.Children.Clear();
             foreach (var t in tables) _grid.Children.Add(TableCard(t));
-            if (tables.Count == 0) _grid.Children.Add(Ui.Placeholder("No tables in this branch yet."));
+            if (tables.Count == 0) _grid.Children.Add(Ui.Placeholder("هنوز میزی در این شعبه ثبت نشده است."));
         }
         catch (Exception ex) { _grid.Children.Clear(); _grid.Children.Add(Ui.Label("⚠ " + ex.Message, "#F87171", 12)); }
     }
@@ -59,9 +59,9 @@ public class TablesView : UserControl, IRefreshable
 
         card.Child = Ui.Column(
             Ui.Label("🪑", size: 26) .HAlign(System.Windows.HorizontalAlignment.Center),
-            Ui.Label("Table " + t.Number, "#EEF1F7", 16, true) .HAlign(System.Windows.HorizontalAlignment.Center).Margin(0, 4, 0, 0),
-            Ui.Muted($"{t.Seats} seats") .HAlign(System.Windows.HorizontalAlignment.Center),
-            Ui.Label(t.CurrentOrderNumber != null ? "#" + t.CurrentOrderNumber : t.StatusName,
+            Ui.Label("میز " + Fa.Num(t.Number), "#EEF1F7", 16, true) .HAlign(System.Windows.HorizontalAlignment.Center).Margin(0, 4, 0, 0),
+            Ui.Muted(Fa.Num(t.Seats) + " نفره") .HAlign(System.Windows.HorizontalAlignment.Center),
+            Ui.Label(t.CurrentOrderNumber != null ? "#" + Fa.DigitsToFa(t.CurrentOrderNumber) : Fa.Status(t.StatusName),
                 occupied ? "#F4B942" : "#5B6B8C", 11.5, true) .HAlign(System.Windows.HorizontalAlignment.Center).Margin(0, 6, 0, 0),
             occupied && t.OpenAmount != null ? Ui.Label(Ui.Money(t.OpenAmount.Value), "#4ADE80", 12, true) .HAlign(System.Windows.HorizontalAlignment.Center) : new TextBlock());
 
@@ -104,7 +104,7 @@ public class TakeOrderDialog : Window
     public TakeOrderDialog(TableDto table)
     {
         _table = table;
-        Title = $"Take order — Table {table.Number}";
+        Title = $"ثبت سفارش — میز {Fa.Num(table.Number)}";
         Width = 780; Height = 640;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Background = Ui.Brush("#0F1420");
@@ -115,7 +115,9 @@ public class TakeOrderDialog : Window
         grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        grid.Children.Add(Ui.Label("Menu — tap to add", "#EEF1F7", 15, true));
+        FlowDirection = FlowDirection.RightToLeft;
+
+        grid.Children.Add(Ui.Label("منو — برای افزودن کلیک کنید", "#EEF1F7", 15, true));
 
         var menuScroll = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Margin = new Thickness(0, 10, 14, 0) };
         var wrap = new WrapPanel();
@@ -127,7 +129,7 @@ public class TakeOrderDialog : Window
         Grid.SetColumn(cartCard, 1);
         Grid.SetRow(cartCard, 0);
         Grid.SetRowSpan(cartCard, 2);
-        var cartInner = Ui.Column(Ui.Label("🧾 Current order", "#F4B942", 14, true), _cartPanel .Margin(0, 10, 0, 0));
+        var cartInner = Ui.Column(Ui.Label("🧾 سفارش جاری", "#F4B942", 14, true), _cartPanel .Margin(0, 10, 0, 0));
         cartCard.Child = cartInner;
         grid.Children.Add(cartCard);
 
@@ -150,7 +152,7 @@ public class TakeOrderDialog : Window
                 card.Child = Ui.Column(
                     Ui.Label(m.Name, "#EEF1F7", 12.5, true) .TextWrapping(TextWrapping.Wrap),
                     Ui.Label(Ui.Money(m.Price), "#F4B942", 12.5, true) .Margin(0, 4, 0, 0),
-                    Ui.Muted($"{m.PrepMinutes} min" + (m.IsVegetarian ? " • veg" : "") + (m.IsSpicy ? " • 🌶" : "")) .Margin(0, 3, 0, 0));
+                    Ui.Muted(Fa.Duration(m.PrepMinutes) + (m.IsVegetarian ? " • گیاهی" : "") + (m.IsSpicy ? " • 🌶 تند" : "")) .Margin(0, 3, 0, 0));
                 card.MouseDown += (_, _) => { AddItem(m); };
                 wrap.Children.Add(card);
             }
@@ -175,18 +177,18 @@ public class TakeOrderDialog : Window
             var notes = new TextBox { Width = 150, FontSize = 11, Padding = new Thickness(6, 4, 6, 4) };
             _noteBoxes[id] = notes;
             var row = Ui.Row(
-                Ui.Label($"{qty}× {m.Name}", size: 12) .MaxWidth(130).TextTrimming(TextTrimming.CharacterEllipsis),
+                Ui.Label($"{Fa.Num(qty)}× {m.Name}", size: 12) .MaxWidth(130).TextTrimming(TextTrimming.CharacterEllipsis),
                 Ui.MoneyEl(m.Price * qty).FontSize(11.5).HAlign(System.Windows.HorizontalAlignment.Right));
             _cartPanel.Children.Add(row);
-            var notesRow = Ui.Row(Ui.Muted("note:") .Width(38), notes);
+            var notesRow = Ui.Row(Ui.Muted("یادداشت:") .Width(52), notes);
             notesRow.Margin = new Thickness(0, 2, 0, 8);
             _cartPanel.Children.Add(notesRow);
         }
         _cartPanel.Children.Add(new Separator { Margin = new Thickness(0, 4, 0, 8) });
-        _cartPanel.Children.Add(Ui.Row(Ui.Label("TOTAL", "#EEF1F7", 13, true),
+        _cartPanel.Children.Add(Ui.Row(Ui.Label("مبلغ کل", "#EEF1F7", 13, true),
             Ui.Label(Ui.Money(_total), "#4ADE80", 15, true) .HAlign(System.Windows.HorizontalAlignment.Right)));
 
-        var submit = new Button { Content = "Send to kitchen →", Style = (Style)Application.Current.Resources["PrimaryBtn"], IsEnabled = _qty.Count > 0 };
+        var submit = new Button { Content = "ارسال به آشپزخانه ←", Style = (Style)Application.Current.Resources["PrimaryBtn"], IsEnabled = _qty.Count > 0 };
         submit.Click += Submit_Click;
         _cartPanel.Children.Add(submit .Margin(0, 12, 0, 0));
     }
@@ -208,12 +210,12 @@ public class TakeOrderDialog : Window
                 }).ToList()
             };
             await App.Api.PostAsync<OrderDto>("/api/v1/orders", dto);
-            (Owner as MainWindow)?.Toast($"✅ Order for table {_table.Number} sent to kitchen");
+            (Owner as MainWindow)?.Toast($"✅ سفارش میز {Fa.Num(_table.Number)} به آشپزخانه ارسال شد");
             DialogResult = true;
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, ex.Message, "Order failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, ex.Message, "ثبت سفارش ناموفق بود", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 }

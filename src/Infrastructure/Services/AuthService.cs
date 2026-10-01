@@ -20,9 +20,9 @@ public class AuthService : IAuthService
     public async Task<AuthResponse> LoginAsync(LoginRequest req, string? ip = null)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.UserName == req.UserName && !u.IsDeleted)
-            ?? throw AppException.BadRequest("Invalid username or password.");
-        if (!user.IsActive) throw AppException.Forbidden("This account is deactivated. Contact the administrator.");
-        if (!_hasher.Verify(req.Password, user.PasswordHash)) throw AppException.BadRequest("Invalid username or password.");
+            ?? throw AppException.BadRequest("نام کاربری یا رمز عبور اشتباه است.");
+        if (!user.IsActive) throw AppException.Forbidden("این حساب کاربری غیرفعال است. با مدیر سیستم تماس بگیرید.");
+        if (!_hasher.Verify(req.Password, user.PasswordHash)) throw AppException.BadRequest("نام کاربری یا رمز عبور اشتباه است.");
 
         user.LastLoginAt = DateTime.UtcNow;
         var branchName = user.BranchId != null ? (await _db.Branches.FindAsync(user.BranchId))?.Name : null;
@@ -38,8 +38,8 @@ public class AuthService : IAuthService
     public async Task<AuthResponse> RefreshAsync(RefreshRequest req, string? ip = null)
     {
         var rt = await _db.RefreshTokens.Include(t => t.User).FirstOrDefaultAsync(t => t.Token == req.RefreshToken)
-            ?? throw AppException.BadRequest("Invalid refresh token.");
-        if (!rt.IsActive) throw AppException.Forbidden("Refresh token expired or revoked.");
+            ?? throw AppException.BadRequest("توکن تمدید نامعتبر است.");
+        if (!rt.IsActive) throw AppException.Forbidden("توکن تمدید منقضی یا ابطال شده است.");
         rt.RevokedAt = DateTime.UtcNow;
         var user = rt.User!;
         var (token, exp) = _tokens.CreateAccessToken(user);
@@ -52,7 +52,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> RegisterCustomerAsync(string fullName, string userName, string email, string password, string? phone)
     {
-        if (await _db.Users.AnyAsync(u => u.UserName == userName)) throw AppException.BadRequest("Username already taken.");
+        if (await _db.Users.AnyAsync(u => u.UserName == userName)) throw AppException.BadRequest("این نام کاربری قبلاً ثبت شده است.");
         var user = new AppUser { FullName = fullName, UserName = userName, Email = email, Phone = phone, PasswordHash = _hasher.Hash(password), Role = UserRole.Customer };
         _db.Users.Add(user);
         var (token, exp) = _tokens.CreateAccessToken(user);
@@ -89,8 +89,8 @@ public class UserService : IUserService
         AppUser user;
         if (dto.Id is null)
         {
-            if (string.IsNullOrWhiteSpace(dto.Password)) throw AppException.BadRequest("Password is required for new users.");
-            if (await _db.Users.AnyAsync(u => u.UserName == dto.UserName)) throw AppException.BadRequest("Username already taken.");
+            if (string.IsNullOrWhiteSpace(dto.Password)) throw AppException.BadRequest("برای کاربر جدید رمز عبور الزامی است.");
+            if (await _db.Users.AnyAsync(u => u.UserName == dto.UserName)) throw AppException.BadRequest("این نام کاربری قبلاً ثبت شده است.");
             user = new AppUser { UserName = dto.UserName.Trim().ToLowerInvariant() };
             _db.Users.Add(user);
         }

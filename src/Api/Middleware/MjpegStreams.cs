@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using SkiaSharp;
+using SmartRestaurant.Application.Printing;
 
 namespace SmartRestaurant.Api.Middleware;
 
@@ -39,6 +40,22 @@ public static class DemoMjpegStream
         }
     }
 
+    /// <summary>Persian-capable typeface: Vazirmatn first, then system fallbacks.</summary>
+    private static SKTypeface LoadPersianTypeface()
+    {
+        string[] files =
+        {
+            Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", "Vazirmatn-Bold.ttf"),
+            "/usr/share/fonts/truetype/vazirmatn/Vazirmatn-Bold.ttf",
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".fonts", "Vazirmatn-Bold.ttf"),
+        };
+        foreach (var p in files)
+            try { if (File.Exists(p) && SKTypeface.FromFile(p) is { } tf) return tf; } catch { }
+        return SKTypeface.FromFamilyName("Vazirmatn", SKFontStyle.Bold)
+            ?? SKTypeface.FromFamilyName("DejaVu Sans", SKFontStyle.Bold)
+            ?? SKTypeface.Default;
+    }
+
     private static byte[] RenderFrameJpeg(string label, SKColor accent, SKColor bg, int t)
     {
         int w = 640, h = 360;
@@ -68,10 +85,10 @@ public static class DemoMjpegStream
         paint.Color = accent.WithAlpha(120);
         canvas.DrawRoundRect(40, 40, 160, 60, 8, 8, paint);
         canvas.DrawRoundRect(w - 200, 40, 160, 60, 8, 8, paint);
-        using var font = new SKFont(SKTypeface.FromFamilyName("sans-serif", SKFontStyle.Bold), 16);
+        using var font = new SKFont(LoadPersianTypeface(), 16);
         using var tp = new SKPaint { Color = SKColors.White, IsAntialias = true };
-        canvas.DrawText("STATION", 60, 78, font, tp);
-        canvas.DrawText("EXIT", w - 176, 78, font, tp);
+        RtlText.Draw(canvas, "ایستگاه پخت", 60, 78, font, tp);
+        RtlText.Draw(canvas, "خروج اضطراری", w - 250, 78, font, tp);
 
         // scanline overlay
         paint.Color = SKColors.Black.WithAlpha(30);
@@ -81,8 +98,8 @@ public static class DemoMjpegStream
         paint.Color = SKColors.Red;
         canvas.DrawCircle(w - 26, 24, 7, paint);
         canvas.DrawText(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), w - 250, 30, font, tp);
-        canvas.DrawText(label.ToUpperInvariant(), 18, h - 18, font, tp);
-        canvas.DrawText("LIVE • 4FPS • 640x360", 18, h - 42, new SKFont(SKTypeface.Default, 12), new SKPaint { Color = SKColors.White.WithAlpha(160), IsAntialias = true });
+        RtlText.Draw(canvas, label, 18, h - 18, font, tp);
+        RtlText.Draw(canvas, "پخش زنده • ۴ فریم • 640x360", 18, h - 42, new SKFont(LoadPersianTypeface(), 13), new SKPaint { Color = SKColors.White.WithAlpha(160), IsAntialias = true });
 
         using var img = SKImage.FromBitmap(bmp);
         using var data = img.Encode(SKEncodedImageFormat.Jpeg, 70);

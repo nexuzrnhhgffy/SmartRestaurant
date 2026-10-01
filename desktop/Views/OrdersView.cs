@@ -19,13 +19,13 @@ public class OrdersView : UserControl, IRefreshable
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
         var filterBar = Ui.Row();
-        foreach (var (key, label) in new[] { ("active", "Active"), ("all", "All recent"), ("unpaid", "Awaiting payment") })
+        foreach (var (key, label) in new[] { ("active", "فعال"), ("all", "همه سفارش‌ها"), ("unpaid", "در انتظار پرداخت") })
         {
             var b = new RadioButton { Content = label, GroupName = "of", Tag = key, Margin = new Thickness(0, 0, 8, 0), Padding = new Thickness(12, 6, 12, 7), IsChecked = key == "active" };
             b.Checked += async (_, _) => { _filter = key; await RefreshAsync(); };
             filterBar.Children.Add(b);
         }
-        var refreshBtn = new Button { Content = "↻ Refresh" };
+        var refreshBtn = new Button { Content = "↻ بروزرسانی" };
         refreshBtn.Click += async (_, _) => await RefreshAsync();
         filterBar.Children.Add(refreshBtn);
 
@@ -55,7 +55,7 @@ public class OrdersView : UserControl, IRefreshable
             if (_filter == "unpaid") orders = orders.Where(o => o.PaymentStatusName != "Paid" && o.StatusName != "Cancelled").ToList();
 
             _list.Children.Clear();
-            if (orders.Count == 0) { _list.Children.Add(Ui.Placeholder("No orders here yet — take an order from the Tables view or the online site.")); return; }
+            if (orders.Count == 0) { _list.Children.Add(Ui.Placeholder("هنوز سفارشی نیست — از نمای میزها یا سایت آنلاین سفارش بگیرید.")); return; }
 
             foreach (var o in orders)
                 _list.Children.Add(OrderCard(o));
@@ -73,9 +73,9 @@ public class OrdersView : UserControl, IRefreshable
         {
             var itemColor = i.Status switch { 2 => "#F4B942", 3 => "#4ADE80", 4 => "#9AA7C0", 5 => "#F87171", _ => "#60A5FA" };
             itemsPanel.Children.Add(Ui.Row(
-                Ui.Label($"{i.Quantity}× {i.ItemName}", size: 12.5),
+                Ui.Label($"{Fa.DigitsToFa(i.Quantity.ToString())}× {i.ItemName}", size: 12.5),
                 Ui.Label(i.Notes != null ? $"  📝 {i.Notes}" : "", "#F4B942", 11),
-                Ui.Label("  " + i.StationName, "#9AA7C0", 10.5)));
+                Ui.Label("  " + Fa.Station(i.StationName), "#9AA7C0", 10.5)));
         }
 
         var actions = Ui.Row();
@@ -86,25 +86,25 @@ public class OrdersView : UserControl, IRefreshable
             b.Click += async (_, _) => { try { b.IsEnabled = false; await onClick(); await RefreshAsync(); } catch (Exception ex) { ToastWin(ex.Message); } finally { b.IsEnabled = true; } };
             actions.Children.Add(b);
         }
-        if (o.StatusName == "Pending") Btn("✔ Confirm → kitchen", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 2 }), true);
-        if (o.StatusName is "Confirmed" or "Preparing") Btn("🍳 Mark preparing", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 3 }));
-        if (o.StatusName is "Preparing" or "Confirmed") Btn("✅ Ready", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 4 }));
-        if (o.StatusName == "Ready") Btn("🍽 Served", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 5 }));
+        if (o.StatusName == "Pending") Btn("✔ تأیید → ارسال به آشپزخانه", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 2 }), true);
+        if (o.StatusName is "Confirmed" or "Preparing") Btn("🍳 در حال آماده‌سازی", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 3 }));
+        if (o.StatusName is "Preparing" or "Confirmed") Btn("✅ آماده شد", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 4 }));
+        if (o.StatusName == "Ready") Btn("🍽 سرو شد", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 5 }));
         if (o.PaymentStatusName != "Paid" && o.StatusName != "Cancelled" && o.StatusName != "Completed")
-            Btn("💳 Take payment", async () => { var dlg = new PaymentDialog(o); if (dlg.ShowDialog() == true) await RefreshAsync(); }, true);
+            Btn("💳 ثبت پرداخت", async () => { var dlg = new PaymentDialog(o); if (dlg.ShowDialog() == true) await RefreshAsync(); }, true);
         if (o.PaymentStatusName == "Paid" && o.StatusName != "Completed")
-            Btn("🏁 Complete (deduct stock + journal)", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 6 }), true);
-        if (o.StatusName is not ("Completed" or "Cancelled")) Btn("✕ Cancel", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 7 }));
+            Btn("🏁 تکمیل سفارش (کسر موجودی + سند حسابداری)", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 6 }), true);
+        if (o.StatusName is not ("Completed" or "Cancelled")) Btn("✕ لغو", () => App.Api.PutAsync<OrderDto>($"/api/v1/orders/{o.Id}/status", new { status = 7 }));
 
         var card = Ui.Card(Ui.Column(
             Ui.Row(
-                Ui.Label("#" + o.OrderNumber, "#F4B942", 15, true),
-                Ui.Badge(o.StatusName, "#22304A", statusColor) .Margin(10, 0, 0, 0),
-                Ui.Badge(o.PaymentStatusName, "#22304A", paidColor) .Margin(6, 0, 0, 0),
-                Ui.Label(o.TypeName + (o.TableNumber != null ? $" • Table {o.TableNumber}" : "") + (o.CustomerName != null ? $" • {o.CustomerName}" : ""), "#9AA7C0", 12) .Margin(10, 0, 0, 0),
+                Ui.Label("#" + Fa.DigitsToFa(o.OrderNumber), "#F4B942", 15, true),
+                Ui.Badge(Fa.Status(o.StatusName), "#22304A", statusColor) .Margin(10, 0, 0, 0),
+                Ui.Badge(Fa.Status(o.PaymentStatusName), "#22304A", paidColor) .Margin(6, 0, 0, 0),
+                Ui.Label(Fa.TypeName(o.TypeName) + (o.TableNumber != null ? $" • میز {Fa.Num(o.TableNumber.Value)}" : "") + (o.CustomerName != null ? $" • {o.CustomerName}" : ""), "#9AA7C0", 12) .Margin(10, 0, 0, 0),
                 Ui.MoneyEl(o.Total).FontSize(15).FontWeight(FontWeights.Bold).HAlign(System.Windows.HorizontalAlignment.Right)),
             itemsPanel,
-            Ui.Row(Ui.Muted($"by {o.CreatedByName ?? "guest"} at {o.CreatedAt.ToLocalTime():HH:mm}") .Margin(0, 8, 0, 0)) .HAlign(System.Windows.HorizontalAlignment.Left),
+            Ui.Row(Ui.Muted($"ثبت‌کننده: {o.CreatedByName ?? "مهمان"} — ساعت {Fa.Time(o.CreatedAt.ToLocalTime())}") .Margin(0, 8, 0, 0)) .HAlign(System.Windows.HorizontalAlignment.Left),
             actions).Margin(0, 12, 0, 0));
         card.Margin = new Thickness(0, 0, 0, 12);
         return card;

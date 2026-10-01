@@ -63,8 +63,8 @@ public static class Ui
         return b;
     }
 
-    public static string Money(decimal v) => v.ToString("N0") + " T";
-    public static string Money(double v) => v.ToString("N0") + " T";
+    public static string Money(decimal v) => Fa.Money(v);
+    public static string Money(double v) => Fa.Money(v);
     public static TextBlock MoneyEl(decimal v) => Label(Money(v));
     public static TextBlock MoneyEl(double v) => Label(Money(v));
 

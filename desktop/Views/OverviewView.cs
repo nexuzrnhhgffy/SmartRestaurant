@@ -30,12 +30,12 @@ public class OverviewView : UserControl, IRefreshable
         if (Session.IsManagerOrAbove) main.Children.Add(BuildEventBanner());
 
         var kpis = new UniformGrid { Columns = 6 };
-        kpis.Children.Add(Wrap(_revenue, "💰", "Revenue today", "#4ADE80"));
-        kpis.Children.Add(Wrap(_orders, "🧾", "Orders today", "#F4B942"));
-        kpis.Children.Add(Wrap(_avg, "🎟", "Avg ticket", "#60A5FA"));
-        kpis.Children.Add(Wrap(_open, "⏱", "Open orders", "#A78BFA"));
-        kpis.Children.Add(Wrap(_tables, "🪑", "Tables", "#F4B942"));
-        kpis.Children.Add(Wrap(_stock, "📦", "Low stock", "#F87171"));
+        kpis.Children.Add(Wrap(_revenue, "💰", "درآمد امروز", "#4ADE80"));
+        kpis.Children.Add(Wrap(_orders, "🧾", "سفارش امروز", "#F4B942"));
+        kpis.Children.Add(Wrap(_avg, "🎟", "میانگین فاکتور", "#60A5FA"));
+        kpis.Children.Add(Wrap(_open, "⏱", "سفارش‌های باز", "#A78BFA"));
+        kpis.Children.Add(Wrap(_tables, "🪑", "میزها", "#F4B942"));
+        kpis.Children.Add(Wrap(_stock, "📦", "موجودی کم", "#F87171"));
         kpis.Margin = new Thickness(0, 0, 0, 16);
         main.Children.Add(kpis);
 
@@ -45,16 +45,16 @@ public class OverviewView : UserControl, IRefreshable
         midGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
         var chartCard = Ui.Card(Ui.Column(
-            Ui.Row(Ui.Label("Revenue — last 7 days", null, 14, true)),
+            Ui.Row(Ui.Label("درآمد — ۷ روز اخیر", null, 14, true)),
             _chart));
         chartCard.Margin = new Thickness(0, 0, 12, 0);
         Grid.SetColumn(chartCard, 0);
 
-        var topCard = Ui.Card(Ui.Column(Ui.Label("Top items — 7 days", null, 14, true), _topList));
+        var topCard = Ui.Card(Ui.Column(Ui.Label("پرفروش‌ترین‌ها — ۷ روز", null, 14, true), _topList));
         topCard.Margin = new Thickness(0, 0, 12, 0);
         Grid.SetColumn(topCard, 1);
 
-        var branchCard = Ui.Card(Ui.Column(Ui.Label("Branch comparison — 30 days", null, 14, true), _branchList));
+        var branchCard = Ui.Card(Ui.Column(Ui.Label("مقایسه شعبه‌ها — ۳۰ روز", null, 14, true), _branchList));
         Grid.SetColumn(branchCard, 2);
         midGrid.Children.Add(chartCard);
         midGrid.Children.Add(topCard);
@@ -62,7 +62,7 @@ public class OverviewView : UserControl, IRefreshable
         main.Children.Add(midGrid);
 
         main.Children.Add(Ui.Card(Ui.Column(
-            Ui.Row(Ui.Label("Live activity feed", null, 14, true), Ui.Muted("  (pushed via SignalR)") .VAlign(VerticalAlignment.Bottom)),
+            Ui.Row(Ui.Label("فعالیت لحظه‌ای", null, 14, true), Ui.Muted("  (پوشش زنده با SignalR)") .VAlign(VerticalAlignment.Bottom)),
             _feed)));
         root.Content = main;
         Content = root;
@@ -104,23 +104,23 @@ public class OverviewView : UserControl, IRefreshable
             var branchQ = MainWindow.CurrentBranchId != null ? $"?branchId={MainWindow.CurrentBranchId}" : "";
             var d = await App.Api.GetAsync<DashboardStatsDto>("/api/v1/reports/dashboard" + branchQ);
             _revenue.Text = Ui.Money(d.TodayRevenue);
-            _orders.Text = d.TodayOrders.ToString();
+            _orders.Text = Fa.Num(d.TodayOrders);
             _avg.Text = Ui.Money(d.AvgTicket);
-            _open.Text = d.OpenOrders.ToString();
-            _tables.Text = $"{d.TablesOccupied}/{d.TablesTotal}";
-            _stock.Text = d.LowStockCount.ToString();
+            _open.Text = Fa.Num(d.OpenOrders);
+            _tables.Text = $"{Fa.Num(d.TablesOccupied)}/{Fa.Num(d.TablesTotal)}";
+            _stock.Text = Fa.Num(d.LowStockCount);
             _stock.Foreground = d.LowStockCount > 0 ? Ui.Brush("#F87171") : Ui.Brush("#4ADE80");
 
-            _chart.Items = d.Last7Days.Select(x => (x.Date.ToString("ddd"), (double)x.Revenue)).ToList();
+            _chart.Items = d.Last7Days.Select(x => (Fa.WeekdayShort(x.Date), (double)x.Revenue)).ToList();
             _chart.InvalidateVisual();
 
             _topList.Children.Clear();
             int rank = 1;
             foreach (var t in d.TopItems.Take(6))
                 _topList.Children.Add(Ui.Row(
-                    Ui.Label($"{rank++}.", "#F4B942", 12, true),
+                    Ui.Label($"{Fa.Num(rank++)}.", "#F4B942", 12, true),
                     Ui.Label(t.Name, size: 12) .Margin(8, 0, 0, 0),
-                    new TextBlock { Text = $"×{t.Qty}", Foreground = Ui.Brush("#9AA7C0"), FontSize = 11.5, HorizontalAlignment = System.Windows.HorizontalAlignment.Right }
+                    new TextBlock { Text = $"×{Fa.Num(t.Qty)}", Foreground = Ui.Brush("#9AA7C0"), FontSize = 11.5, HorizontalAlignment = System.Windows.HorizontalAlignment.Right }
                 .Margin(0, 0, 0, 7)));
             _topList.Margin = new Thickness(0, 10, 0, 0);
 
@@ -133,7 +133,7 @@ public class OverviewView : UserControl, IRefreshable
                         Ui.MoneyEl(b.Revenue).FontSize(11.5).HAlign(System.Windows.HorizontalAlignment.Right)),
                     new ProgressBar { Value = pct, Minimum = 0, Maximum = 100, Height = 6, Foreground = Ui.Brush("#F4B942"), Background = Ui.Brush("#1E2740"), BorderThickness = new Thickness(0), Margin = new Thickness(0, 4, 0, 10) }));
             }
-            if (d.BranchSales.Count == 0) _branchList.Children.Add(Ui.Muted("Single-branch mode — all sales shown above."));
+            if (d.BranchSales.Count == 0) _branchList.Children.Add(Ui.Muted("حالت تک‌شعبه‌ای — همه فروش‌ها در بالا نمایش داده می‌شود."));
 
             _feed.Children.Clear();
             if (d.RunningEvent != null)
@@ -141,7 +141,7 @@ public class OverviewView : UserControl, IRefreshable
                 _eventBanner.Child = Ui.Row(
                     Ui.Label(d.RunningEvent.BannerEmoji ?? "🎉", size: 22),
                     Ui.Column(
-                        Ui.Label($"  {d.RunningEvent.Title} — {d.RunningEvent.DiscountPercent:0}% off", "#F4B942", 13.5, true),
+                        Ui.Label($"  {d.RunningEvent.Title} — {Fa.Num((int)d.RunningEvent.DiscountPercent)}٪ تخفیف", "#F4B942", 13.5, true),
                         Ui.Muted("  " + d.RunningEvent.Description ?? "", 11.5) .Margin(12, 0, 0, 0))
                     .Margin(10, 0, 0, 0));
                 _eventBanner.Visibility = Visibility.Visible;
@@ -153,11 +153,11 @@ public class OverviewView : UserControl, IRefreshable
             {
                 var color = o.StatusName switch { "Pending" => "#A78BFA", "Confirmed" => "#60A5FA", "Preparing" => "#F4B942", "Ready" => "#4ADE80", "Served" => "#9AA7C0", "Completed" => "#5B6B8C", _ => "#F87171" };
                 _feed.Children.Add(Ui.Row(
-                    Ui.Label(o.OrderNumber, color, 12.5, true),
-                    Ui.Label($"  {o.TypeName}" + (o.TableNumber != null ? $" T{o.TableNumber}" : ""), size: 12),
-                    Ui.Label(o.StatusName, color, 11.5),
+                    Ui.Label("#" + Fa.DigitsToFa(o.OrderNumber), color, 12.5, true),
+                    Ui.Label($"  {Fa.TypeName(o.TypeName)}" + (o.TableNumber != null ? $" میز {Fa.Num(o.TableNumber.Value)}" : ""), size: 12),
+                    Ui.Label(Fa.Status(o.StatusName), color, 11.5),
                     Ui.MoneyEl(o.Total).FontSize(12).HAlign(System.Windows.HorizontalAlignment.Right),
-                    Ui.Muted("  " + o.CreatedAt.ToLocalTime().ToString("HH:mm")) .HAlign(System.Windows.HorizontalAlignment.Right)));
+                    Ui.Muted("  " + Fa.Time(o.CreatedAt.ToLocalTime())) .HAlign(System.Windows.HorizontalAlignment.Right)));
             }
             _feed.Margin = new Thickness(0, 10, 0, 0);
         }

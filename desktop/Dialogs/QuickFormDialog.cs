@@ -17,6 +17,7 @@ public class QuickFormDialog : Window
         Width = 440; SizeToContent = SizeToContent.Height;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Background = Ui.Brush("#0F1420");
+        FlowDirection = FlowDirection.RightToLeft;
         _inputs = labels.Select(l => new TextBox()).ToArray();
         _onSubmit = onSubmit;
 
@@ -28,7 +29,7 @@ public class QuickFormDialog : Window
             sp.Children.Add(Ui.Label(labels[i], "#9AA7C0", 11) .Margin(0, 14, 0, 5));
             sp.Children.Add(_inputs[i]);
         }
-        var ok = new Button { Content = "Submit", Style = (Style)Application.Current.Resources["PrimaryBtn"], Padding = new Thickness(0, 10, 0, 10), Margin = new Thickness(0, 22, 0, 0) };
+        var ok = new Button { Content = "ثبت اطلاعات", Style = (Style)Application.Current.Resources["PrimaryBtn"], Padding = new Thickness(0, 10, 0, 10), Margin = new Thickness(0, 22, 0, 0) };
         ok.Click += async (_, _) =>
         {
             try
@@ -39,7 +40,7 @@ public class QuickFormDialog : Window
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(this, ex.Message, "خطا", MessageBoxButton.OK, MessageBoxImage.Warning);
                 ok.IsEnabled = true;
             }
         };

@@ -1,33 +1,40 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Zafaran Restaurant — Online Ordering</title>
+<title>رستوران زعفران — سفارش آنلاین</title>
+<meta name="description" content="رستوران هوشمند زعفران — کباب زغالی، خورشت‌های اصیل و دسرهای سنتی؛ سفارش آنلاین با تحویل سریع در تهران و کرج.">
+<style>
+  @font-face { font-family: "Vazirmatn"; src: url("/assets/fonts/Vazirmatn-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Vazirmatn"; src: url("/assets/fonts/Vazirmatn-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Vazirmatn"; src: url("/assets/fonts/Vazirmatn-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Vazirmatn"; src: url("/assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); font-weight: 700 800; font-display: swap; }
+</style>
 <link rel="stylesheet" href="/assets/css/site.css">
 </head>
 <body>
 
 <nav class="nav">
   <div class="inner">
-    <div class="logo">🫖 ZAFARAN<small>RESTAURANT</small></div>
+    <div class="logo">🫖 زعفران<small>رستوران هوشمند</small></div>
     <div class="spacer"></div>
-    <a href="#trackBox" style="color:var(--muted);font-size:13.5px;text-decoration:none">Track order</a>
-    <button class="btn primary" onclick="toggleCart(true)">🛒 Cart <span class="badge" id="cartCount" style="display:none">0</span></button>
+    <a href="#trackBox" style="color:var(--muted);font-size:13.5px;text-decoration:none">پیگیری سفارش</a>
+    <button class="btn primary" onclick="toggleCart(true)">🛒 سبد خرید <span class="badge" id="cartCount" style="display:none">۰</span></button>
   </div>
 </nav>
 
 <header class="hero">
   <div class="container" id="heroContent">
-    <h1>Persian fire. <em>Saffron soul.</em><br>Delivered to your table.</h1>
-    <p>Charcoal kebabs, slow-simmered stews and hand-pulled desserts — order online and watch your ticket move through our kitchen in real time.</p>
-    <a class="btn primary" href="#menu">Explore the menu ↓</a>
+    <h1>آتش ذغالی، <em>روح زعفران.</em><br>درب منزل شما.</h1>
+    <p>کباب‌های زغالی، خورشت‌های دم‌کشیده و دسرهای سنتی — همین حالا سفارش دهید و حرکت سفارش خود را در آشپزخانه به‌صورت لحظه‌ای دنبال کنید.</p>
+    <a class="btn primary" href="#menu">مشاهده منو ↓</a>
   </div>
 </header>
 
 <main class="container">
-  <h2 class="section-title" id="menu">Menu</h2>
-  <p class="section-sub">Fresh from the grill &amp; kitchen — priced in Toman</p>
+  <h2 class="section-title" id="menu">منوی غذاها</h2>
+  <p class="section-sub">تازه از زغال و آشپزخانه — قیمت‌ها به تومان</p>
   <div class="cats" id="cats"></div>
   <div class="grid" id="menuGrid"></div>
 
@@ -36,21 +43,21 @@
 
 <footer>
   <div class="inner">
-    <span>© 2026 Zafaran Restaurant — Tehran · Karaj · Cloud Kitchen</span>
-    <span>Payments: Zarinpal · Zibal · IDPay · Pay.ir · NextPay · Mellat · Saman · Parsian</span>
+    <span>© ۱۴۰۴ رستوران زعفران — تهران · کرج · آشپزخانه ابری</span>
+    <span>درگاه‌های پرداخت: زرین‌پال · زیبال · آی‌دی‌پی · پی‌آی‌آر · نکست‌پی · ملت · سامان · پارسیان</span>
   </div>
 </footer>
 
 <div class="drawer-backdrop" id="backdrop" onclick="toggleCart(false)"></div>
 <aside class="drawer" id="drawer">
-  <div class="head"><b style="font-size:17px">🛒 Your order</b>
+  <div class="head"><b style="font-size:17px">🛒 سبد سفارش شما</b>
     <button class="btn" onclick="toggleCart(false)">✕</button></div>
   <div class="items">
     <div id="cartItems"></div>
-    <label>Your name</label><input id="fName" placeholder="Sara Seify">
-    <label>Phone</label><input id="fPhone" placeholder="0912 000 0000">
-    <label>Delivery address (leave empty for pickup)</label>
-    <textarea id="fAddr" rows="2" placeholder="Valiasr St., No. 124…"></textarea>
+    <label>نام شما</label><input id="fName" placeholder="مثلاً سارا سیفی">
+    <label>شماره تماس</label><input id="fPhone" placeholder="۰۹۱۲ ۰۰۰ ۰۰۰۰" style="text-align:left;direction:ltr">
+    <label>آدرس تحویل (برای تحویل حضوری خالی بگذارید)</label>
+    <textarea id="fAddr" rows="2" placeholder="خیابان ولیعصر، پلاک ۱۲۴..."></textarea>
   </div>
   <div class="foot" id="cartFoot"></div>
 </aside>

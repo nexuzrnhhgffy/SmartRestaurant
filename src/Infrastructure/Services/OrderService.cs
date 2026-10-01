@@ -29,7 +29,7 @@ public class OrderService : IOrderService
     // ─────────────────────────── CREATE ───────────────────────────
     public async Task<OrderDto> CreateAsync(OrderCreateDto dto, IUserContext actor)
     {
-        if (dto.Items.Count == 0) throw AppException.BadRequest("Order must contain at least one item.");
+        if (dto.Items.Count == 0) throw AppException.BadRequest("سفارش باید حداقل یک آیتم داشته باشد.");
         var branchId = await Scope.ResolveAsync(_db, actor, dto.BranchId);
         var branch = await _db.Branches.FindAsync(branchId);
 
@@ -37,7 +37,7 @@ public class OrderService : IOrderService
         var menu = await _db.MenuItems.Include(m => m.Category).Where(m => menuIds.Contains(m.Id)).ToDictionaryAsync(m => m.Id);
         foreach (var line in dto.Items)
             if (!menu.TryGetValue(line.MenuItemId, out var mi) || !mi.IsAvailable)
-                throw AppException.BadRequest($"Menu item unavailable: {menu.GetValueOrDefault(line.MenuItemId)?.Name ?? line.MenuItemId.ToString()}");
+                throw AppException.BadRequest($"این آیتم منو موجود نیست: {menu.GetValueOrDefault(line.MenuItemId)?.Name ?? line.MenuItemId.ToString()}");
 
         var subtotal = dto.Items.Sum(l => menu[l.MenuItemId].Price * l.Quantity);
 
@@ -79,8 +79,8 @@ public class OrderService : IOrderService
 
         _log.LogInformation("Order {OrderNumber} created by {Actor} at branch {BranchId}", order.OrderNumber, actor.UserName, branchId);
         await PushOrderAsync(order);
-        await _notifications.CreateAsync(NotificationType.NewOrder, $"New order {order.OrderNumber}",
-            $"{dto.Type} • {order.ItemsCount} items • {order.Total:N0} {(await _settings.GetAsync("Restaurant:Currency", "Toman"))}", branchId, UserRole.Cashier);
+        await _notifications.CreateAsync(NotificationType.NewOrder, $"سفارش جدید {order.OrderNumber}",
+            $"{Fa.Label(dto.Type)} • {Fa.Num(order.ItemsCount)} آیتم • {Fa.Money(order.Total)}", branchId, UserRole.Cashier);
         await _notify.Clients.Groups($"branch:{branchId}").StatsRefresh("order-created");
         return await GetAsync(order.Id);
     }
@@ -120,7 +120,7 @@ public class OrderService : IOrderService
         switch (dto.Status)
         {
             case OrderStatus.Confirmed:
-                if (o.Status != OrderStatus.Pending) throw AppException.BadRequest($"Only pending orders can be confirmed (current: {o.Status}).");
+                if (o.Status != OrderStatus.Pending) throw AppException.BadRequest($"فقط سفارش‌های در انتظار تأیید قابل تأیید هستند (وضعیت فعلی: {Fa.Label(o.Status)}).");
                 o.Status = OrderStatus.Confirmed; o.ConfirmedAt = DateTime.UtcNow;
                 await _printer.PrintKitchenTicketAsync(o.Id);       // ESC/POS → kitchen printer
                 await PushKdsTicketsAsync(o);                       // SignalR → KDS screens
@@ -132,8 +132,8 @@ public class OrderService : IOrderService
 
             case OrderStatus.Ready:
                 o.Status = OrderStatus.Ready; o.ReadyAt = DateTime.UtcNow;
-                await _notifications.CreateAsync(NotificationType.OrderReady, $"Order {o.OrderNumber} ready",
-                    $"All items are ready for {o.Type}.", o.BranchId, o.Type == OrderType.DineIn ? UserRole.Waiter : UserRole.Cashier);
+                await _notifications.CreateAsync(NotificationType.OrderReady, $"سفارش {o.OrderNumber} آماده است",
+                    $"همه آیتم‌ها برای سرو {Fa.Label(o.Type)} آماده شدند.", o.BranchId, o.Type == OrderType.DineIn ? UserRole.Waiter : UserRole.Cashier);
                 break;
 
             case OrderStatus.Served:
@@ -142,7 +142,7 @@ public class OrderService : IOrderService
 
             case OrderStatus.Completed:
                 if (o.PaymentStatus != PaymentStatus.Paid)
-                    throw AppException.BadRequest("Order must be paid before completion. Take payment first.");
+                    throw AppException.BadRequest("تکمیل سفارش فقط پس از پرداخت امکان‌پذیر است. ابتدا پرداخت را ثبت کنید.");
                 o.Status = OrderStatus.Completed; o.CompletedAt = DateTime.UtcNow;
                 if (o.Table != null) { o.Table.Status = TableStatus.Free; o.Table.CurrentOrderId = null; }
                 await _inventory.DeductForOrderAsync(o.Id);          // recipe → stock auto-deduction
@@ -151,7 +151,7 @@ public class OrderService : IOrderService
                 break;
 
             case OrderStatus.Cancelled:
-                if (o.Status == OrderStatus.Completed) throw AppException.BadRequest("Completed orders cannot be cancelled — issue a refund instead.");
+                if (o.Status == OrderStatus.Completed) throw AppException.BadRequest("سفارش تکمیل‌شده قابل لغو نیست — برای بازگشت وجه از بخش استرداد استفاده کنید.");
                 o.Status = OrderStatus.Cancelled;
                 if (o.Table != null) { o.Table.Status = TableStatus.Free; o.Table.CurrentOrderId = null; }
                 foreach (var item in o.Items.Where(i => i.Status != OrderItemStatus.Delivered)) item.Status = OrderItemStatus.Cancelled;
@@ -179,7 +179,7 @@ public class OrderService : IOrderService
         if (status == OrderItemStatus.Ready && o.Items.All(i => i.Status is OrderItemStatus.Ready or OrderItemStatus.Delivered or OrderItemStatus.Cancelled) && o.Status is OrderStatus.Confirmed or OrderStatus.Preparing)
         {
             o.Status = OrderStatus.Ready; o.ReadyAt = DateTime.UtcNow;
-            await _notifications.CreateAsync(NotificationType.OrderReady, $"Order {o.OrderNumber} ready", "All items bumped ready.", o.BranchId, o.Type == OrderType.DineIn ? UserRole.Waiter : UserRole.Cashier);
+            await _notifications.CreateAsync(NotificationType.OrderReady, $"سفارش {o.OrderNumber} آماده است", "همه آیتم‌ها آماده سرو هستند.", o.BranchId, o.Type == OrderType.DineIn ? UserRole.Waiter : UserRole.Cashier);
         }
         else if (status == OrderItemStatus.Preparing && o.Status == OrderStatus.Confirmed)
             o.Status = OrderStatus.Preparing;
@@ -316,8 +316,8 @@ public class ReservationService : IReservationService
         r.CustomerName = dto.CustomerName; r.Phone = dto.Phone; r.ReservedFor = dto.ReservedFor;
         r.PartySize = dto.PartySize; r.TableId = dto.TableId; r.Note = dto.Note; r.BranchId = dto.BranchId;
         await _db.SaveChangesAsync();
-        await _notifications.CreateAsync(NotificationType.Reservation, "New reservation",
-            $"{r.CustomerName} • {r.PartySize} guests • {r.ReservedFor:MMM dd HH:mm}", r.BranchId, UserRole.Manager);
+        await _notifications.CreateAsync(NotificationType.Reservation, "رزرو جدید",
+            $"{r.CustomerName} • {Fa.Num(r.PartySize)} نفر • {Fa.JalaliTime(r.ReservedFor)}", r.BranchId, UserRole.Manager);
         await _notify.Clients.Groups($"branch:{r.BranchId}").StatsRefresh("reservation");
         return ToDto(r);
     }

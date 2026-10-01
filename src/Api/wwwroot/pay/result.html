@@ -1,12 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<title>Payment Result — Zafaran Restaurant</title>
+<title>نتیجه پرداخت — رستوران زعفران</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
+  @font-face { font-family: "Vazirmatn"; src: url("/assets/fonts/Vazirmatn-Regular.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Vazirmatn"; src: url("/assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); font-weight: 700; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: "Segoe UI", Tahoma, sans-serif; background: #0f1420; color: #eef1f7;
+  body { font-family: "Vazirmatn", Tahoma, sans-serif; background: #0f1420; color: #eef1f7;
          display: grid; place-items: center; height: 100vh; }
   .card { background: #171e2e; border: 1px solid #2a3550; border-radius: 20px; padding: 48px 56px;
           text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.5); max-width: 460px; }
@@ -24,19 +26,19 @@
 <body>
   <div class="card" id="card">
     <div class="icon" id="icon">⏳</div>
-    <h1 id="title">Checking payment…</h1>
-    <p id="msg">Communicating with the payment gateway.</p>
-    <a class="btn" href="/">Back to restaurant</a>
-    <p class="meta">Zafaran Restaurant • پرداخت آنلاین زعفران</p>
+    <h1 id="title">در حال بررسی پرداخت…</h1>
+    <p id="msg">در حال ارتباط با درگاه پرداخت بانکی.</p>
+    <a class="btn" href="/">بازگشت به رستوران</a>
+    <p class="meta">رستوران زعفران • پرداخت آنلاین امن</p>
   </div>
   <script>
     const ok = new URLSearchParams(location.search).get("status") === "ok";
     document.getElementById("card").className = "card " + (ok ? "ok" : "fail");
     document.getElementById("icon").textContent = ok ? "✅" : "❌";
-    document.getElementById("title").textContent = ok ? "Payment successful!" : "Payment failed";
+    document.getElementById("title").textContent = ok ? "پرداخت با موفقیت انجام شد!" : "پرداخت ناموفق بود";
     document.getElementById("msg").textContent = ok
-      ? "Your order has been confirmed and sent to the kitchen. نوش جان!"
-      : "The gateway rejected the transaction. No money was captured — please try again.";
+      ? "سفارش شما تأیید و به آشپزخانه ارسال شد. نوش جان!"
+      : "درگاه بانکی تراکنش را رد کرد. مبلغی از حساب شما کسر نشده است — لطفاً دوباره تلاش کنید.";
   </script>
 </body>
 </html>

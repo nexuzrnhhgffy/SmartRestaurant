@@ -26,8 +26,8 @@ public class PaymentService : IPaymentService
     {
         var order = await _db.Orders.Include(o => o.Payments).FirstOrDefaultAsync(o => o.Id == dto.OrderId)
             ?? throw AppException.NotFound("Order");
-        if (order.Status == OrderStatus.Cancelled) throw AppException.BadRequest("Cannot pay a cancelled order.");
-        if (order.PaymentStatus == PaymentStatus.Paid) throw AppException.BadRequest("Order is already paid.");
+        if (order.Status == OrderStatus.Cancelled) throw AppException.BadRequest("سفارش لغو‌شده قابل پرداخت نیست.");
+        if (order.PaymentStatus == PaymentStatus.Paid) throw AppException.BadRequest("این سفارش قبلاً پرداخت شده است.");
 
         // instant methods — no gateway round trip
         if (dto.Gateway is PaymentGatewayType.Cash or PaymentGatewayType.CardPresent)
@@ -41,8 +41,8 @@ public class PaymentService : IPaymentService
         }
 
         var cfg = await _db.GatewayConfigs.FirstOrDefaultAsync(c => c.Gateway == dto.Gateway && c.Enabled)
-            ?? throw AppException.BadRequest($"Gateway {dto.Gateway} is not configured/enabled. Ask the SuperAdmin.");
-        var impl = _gateways.Resolve(dto.Gateway) ?? throw AppException.BadRequest("Gateway implementation missing.");
+            ?? throw AppException.BadRequest($"درگاه {Fa.Label(dto.Gateway)} فعال نیست. با مدیر ارشد سیستم تماس بگیرید.");
+        var impl = _gateways.Resolve(dto.Gateway) ?? throw AppException.BadRequest("پیاده‌سازی درگاه پرداخت یافت نشد.");
 
         var payment = new Payment { OrderId = order.Id, Gateway = dto.Gateway, Amount = order.Total, Status = PaymentStatus.Pending };
         _db.Payments.Add(payment);
@@ -67,7 +67,7 @@ public class PaymentService : IPaymentService
         {
             payment.Status = PaymentStatus.Failed; payment.GatewayResponse = result.Raw ?? result.Error;
             await _db.SaveChangesAsync();
-            throw AppException.BadRequest($"Gateway rejected the request: {result.Error}");
+            throw AppException.BadRequest($"درگاه پرداخت درخواست را رد کرد: {result.Error}");
         }
         payment.Authority = result.Authority; payment.GatewayResponse = result.Raw;
         await _db.SaveChangesAsync();

@@ -32,7 +32,7 @@ public partial class LoginWindow : Window
     {
         ErrorText.Visibility = Visibility.Collapsed;
         LoginBtn.IsEnabled = false;
-        LoginBtn.Content = "Signing in…";
+        LoginBtn.Content = "در حال ورود…";
         try
         {
             App.Api.SetServer(ServerBox.Text.Trim());
@@ -57,7 +57,7 @@ public partial class LoginWindow : Window
         finally
         {
             LoginBtn.IsEnabled = true;
-            LoginBtn.Content = "Sign in  →";
+            LoginBtn.Content = "ورود به سیستم  ←";
         }
     }
 }

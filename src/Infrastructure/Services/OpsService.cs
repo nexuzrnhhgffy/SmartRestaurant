@@ -63,7 +63,7 @@ public class PrintService : IPrintService
         var ticket = new KitchenTicket
         {
             OrderNumber = order.OrderNumber,
-            TableOrType = order.Table != null ? $"Table {order.Table.Number}" : order.Type.ToString(),
+            TableOrType = order.Table != null ? $"میز {Fa.Num(order.Table.Number)}" : Fa.Label(order.Type),
             CreatedAt = order.CreatedAt, Customer = order.CustomerName, Note = order.Note,
             Lines = order.Items.Where(i => i.Status != OrderItemStatus.Cancelled).Select(i => new KitchenTicketLine { Name = i.ItemNameSnapshot, Quantity = i.Quantity, Notes = i.Notes }).ToList()
         };
@@ -86,7 +86,7 @@ public class PrintService : IPrintService
             BranchName = branch?.Name ?? "-", OrderNumber = order.OrderNumber, CompletedAt = order.CompletedAt ?? DateTime.UtcNow,
             Cashier = order.CreatedByName, Footer = await _settings.GetAsync("Receipt:Footer", "نوش جان — با تشکر از انتخاب شما"),
             SubTotal = order.SubTotal, Discount = order.Discount, Tax = order.Tax, Total = order.Total,
-            PaymentMethod = payment?.Gateway.ToString() ?? "Unpaid", RefId = payment?.RefId,
+            PaymentMethod = payment != null ? Fa.Label(payment.Gateway) : "پرداخت نشده", RefId = payment?.RefId,
             Lines = order.Items.Select(i => new ReceiptLine { Name = i.ItemNameSnapshot, Quantity = i.Quantity, UnitPrice = i.UnitPrice }).ToList()
         };
         await SendAsync(printer, order.BranchId, order.Id, receipt);
@@ -95,7 +95,7 @@ public class PrintService : IPrintService
     public async Task<bool> TestPrinterAsync(Guid printerId)
     {
         var printer = await _db.Printers.FindAsync(printerId) ?? throw AppException.NotFound("Printer");
-        var ticket = new KitchenTicket { OrderNumber = "TEST", TableOrType = "Printer test", CreatedAt = DateTime.UtcNow, Lines = new() { new KitchenTicketLine { Name = "ESC/POS test — چاپ آزمایشی", Quantity = 1 } } };
+        var ticket = new KitchenTicket { OrderNumber = "TEST", TableOrType = "چاپ آزمایشی", CreatedAt = DateTime.UtcNow, Lines = new() { new KitchenTicketLine { Name = "چاپ آزمایشی ESC/POS — زعفران ✓", Quantity = 1 } } };
         return await SendAsync(printer, printer.BranchId, null, ticket);
     }
 

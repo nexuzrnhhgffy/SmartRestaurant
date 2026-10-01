@@ -1,6 +1,24 @@
-# 🫖 Zafaran — Smart Restaurant Operating System
+# 🫖 زعفران — سامانه جامع مدیریت رستوران (Smart Restaurant OS)
 
-A complete, production-grade restaurant platform: **ASP.NET Core 8 server + WPF Windows desktop app + customer web ordering + mobile-ready JWT API** — with push-based Kitchen Display (SignalR), **Zarinpal & Iranian bank gateways**, **recipe-driven inventory auto-deduction**, multi-branch, **ESC/POS printing**, double-entry accounting, and **unlimited live camera streams**.
+> **رابط کاربری کاملاً فارسی** — تمام داشبوردها، وب‌سایت، اپلیکیشن ویندوز، رسیدها و پیام‌های سیستمی به زبان فارسی با اعداد فارسی، تقویم شمسی (جلالی) و فونت وزیرمتن ارائه می‌شوند. راست‌به‌چپ (RTL) در وب و ویندوز.
+>
+> A complete, production-grade restaurant platform: **ASP.NET Core 8 server + WPF Windows desktop app + customer web ordering + mobile-ready JWT API** — with push-based Kitchen Display (SignalR), **Zarinpal & Iranian bank gateways**, **recipe-driven inventory auto-deduction**, multi-branch, **ESC/POS printing**, double-entry accounting, and **unlimited live camera streams**.
+
+## 🇮🇷 فارسی‌سازی (Persian Localization)
+
+| لایه | جزئیات |
+|---|---|
+| **وب‌سایت مشتریان** | RTL کامل، فونت وزیرمتن (local woff2)، قیمت‌ها به تومان با ارقام فارسی، پیگیری سفارش با مراحل فارسی |
+| **پنل وب مدیریت** | درآمد/سفارش/میزها با ارقام فارسی، وضعیت‌های فارسی‌شده |
+| **اپلیکیشن ویندوز (WPF)** | `FlowDirection=RightToLeft` روی همه پنجره‌ها، فونت وزیرمتن (bundled TTF resource)، تمام ۱۴ داشبورد و دیالوگ‌ها فارسی |
+| **اعداد و تاریخ** | کلاس `Fa` (سرور و کلاینت): ارقام فارسی، جداکننده هزارگان «٬»، تبدیل گریگوری→جلالی (Borkowski)، ساعت و مدت فارسی |
+| **داده‌های اولیه** | منوی کامل ایرانی (چلوکباب، فسنجان، کشک بادمجان…)، شعبه‌ها، مواد اولیه، حساب‌های کدینگ فارسی |
+| **پیام‌های خطا** | همه `AppException`ها فارسی («میز یافت نشد»، «نام کاربری یا رمز عبور اشتباه است»…) |
+| **چاپ حرارتی** | رستر رسید/تیکت با HarfBuzz shaping (کلاس `RtlText`) — اتصال حروف و راست‌به‌چپ صحیح روی هر پرینتر ESC/POS |
+| **دوربین‌ها** | HUD استریم نمونه فارسی («پخش زنده • ۴ فریم») با shaping |
+| **ویدیوی محصول** | روایت فارسی (voice fa-IR neural) + صحنه‌های RTL — `download/SmartRestaurant_Product_Video.mp4` |
+
+English status names (Pending/Confirmed/…) remain the API contract for mobile apps; clients map them to Persian via `Fa.Status()` / `FA_STATUS` (web).
 
 ```
 ┌────────────────────────┐      ┌──────────────┐  ┌───────────────┐  ┌──────────────┐

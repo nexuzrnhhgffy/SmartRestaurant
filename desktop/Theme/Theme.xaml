@@ -34,10 +34,10 @@
         <GradientStop Color="#E08D1F" Offset="1"/>
     </LinearGradientBrush>
 
-    <!-- global text -->
+    <!-- global text — Vazirmatn (فارسی) with Segoe UI fallback -->
     <Style TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource Text}"/>
-        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontFamily" Value="Vazirmatn, Segoe UI"/>
     </Style>
     <Style x:Key="H1" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="FontSize" Value="26"/>

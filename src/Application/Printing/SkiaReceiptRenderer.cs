@@ -1,4 +1,5 @@
 using SkiaSharp;
+using SmartRestaurant.Domain.Common;
 
 namespace SmartRestaurant.Application.Printing;
 
@@ -71,11 +72,10 @@ public static class SkiaReceiptRenderer
         foreach (var (text, f, center, ly, lh) in metrics)
         {
             if (string.IsNullOrEmpty(text)) continue;
-            var bounds = new SKRect();
-            var w = paint.MeasureText(text, ref bounds);
+            var w = RtlText.Measure(text, f);
             var x = center ? (width - w) / 2f : Margin;
             var baseline = ly + (-f.Metrics.Ascent);
-            canvas.DrawText(text, x, baseline, f, paint);
+            RtlText.Draw(canvas, text, x, baseline, f, paint);
         }
 
         // 1bpp pack: 8 px per byte, MSB first
@@ -103,21 +103,22 @@ public static class SkiaReceiptRenderer
         var L = new List<(string, bool, bool)>
         {
             (r.RestaurantName, true, true),
-            ($"شعبه: {r.BranchName}   |   Branch: {r.BranchName}", false, true),
+            ($"شعبه: {r.BranchName}", false, true),
             ("────────────────────────────", false, true),
-            ($"شماره سفارش / Order: {r.OrderNumber}", false, false),
-            ($"تاریخ: {r.CompletedAt.ToLocalTime():yyyy-MM-dd HH:mm}", false, false),
+            ($"شماره سفارش: {r.OrderNumber}", false, false),
+            ($"تاریخ: {Fa.JalaliTime(r.CompletedAt.ToLocalTime())}", false, false),
             ("--------------------------------", false, false),
         };
         foreach (var l in r.Lines)
-            L.Add(($"{l.Quantity}× {l.Name}   {l.Total:N0}", false, false));
+            L.Add(($"{Fa.Num(l.Quantity)}× {l.Name}   {Fa.Num(l.Total)}", false, false));
         L.Add(("--------------------------------", false, false));
-        L.Add(($"جمع / Subtotal: {r.SubTotal:N0}", false, false));
-        if (r.Discount > 0) L.Add(($"تخفیف / Discount: -{r.Discount:N0}", false, false));
-        L.Add(($"مالیات / VAT: {r.Tax:N0}", false, false));
-        L.Add(($"مبلغ نهایی / TOTAL: {r.Total:N0} تومان", true, false));
-        L.Add(($"پرداخت: {r.PaymentMethod} {(r.RefId != null ? "Ref:" + r.RefId : "")}", false, true));
+        L.Add(($"جمع کل: {Fa.Num(r.SubTotal)} تومان", false, false));
+        if (r.Discount > 0) L.Add(($"تخفیف: {Fa.Num(r.Discount)} تومان کسر می‌گردد", false, false));
+        L.Add(($"مالیات بر ارزش افزوده: {Fa.Num(r.Tax)} تومان", false, false));
+        L.Add(($"مبلغ نهایی: {Fa.Num(r.Total)} تومان", true, false));
+        L.Add(($"روش پرداخت: {r.PaymentMethod} {(r.RefId != null ? "/ شماره پیگیری: " + r.RefId : "")}", false, true));
         L.Add((r.Footer, false, true));
+        L.Add(("سیستم جامع مدیریت رستوران زعفران", false, true));
         return L;
     }
 
@@ -126,7 +127,7 @@ public static class SkiaReceiptRenderer
         var L = new List<(string, bool, bool)>
         {
             ($"#{t.OrderNumber}", true, true),
-            ($"{t.TableOrType}   {t.CreatedAt:HH:mm}", false, true),
+            ($"{t.TableOrType}   {Fa.Time(t.CreatedAt.ToLocalTime())}", false, true),
             ("════════════════════════", false, true),
         };
         foreach (var l in t.Lines)

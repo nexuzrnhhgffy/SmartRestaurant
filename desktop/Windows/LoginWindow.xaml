@@ -1,18 +1,19 @@
 <Window x:Class="SmartRestaurant.Desktop.Windows.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Zafaran Desktop — Sign in" Height="640" Width="1000"
+        Title="زعفران دسکتاپ — ورود به سیستم" Height="640" Width="1000"
         WindowStartupLocation="CenterScreen" Background="#0F1420"
-        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True">
+        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
+        FlowDirection="RightToLeft">
     <Border CornerRadius="18" BorderBrush="#2A3550" BorderThickness="1">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="460"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- brand panel -->
-            <Border Grid.Column="0" CornerRadius="18,0,0,18">
+            <!-- brand panel (راست در حالت راست‌به‌چپ) -->
+            <Border Grid.Column="0" CornerRadius="0,18,18,0">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="#181027" Offset="0"/>
@@ -22,58 +23,58 @@
                 </Border.Background>
                 <StackPanel VerticalAlignment="Center" Margin="60,0">
                     <TextBlock Text="🫖" FontSize="52" Margin="0,0,0,10"/>
-                    <TextBlock Text="ZAFARAN" FontSize="38" FontWeight="Bold" Foreground="#F4B942"/>
-                    <TextBlock Text="RESTAURANT OS" FontSize="15" Foreground="#9AA7C0" Margin="2,2,0,30"/>
-                    <TextBlock Text="One desktop app for every role:" Foreground="#9AA7C0" FontSize="13"/>
-                    <TextBlock Foreground="#EEF1F7" FontSize="13" LineHeight="26" Margin="0,8,0,0" TextWrapping="Wrap">
-                        ● SuperAdmin &amp; Manager — multi-branch command center<LineBreak/>
-                        ● Kitchen — push-based KDS with live timers<LineBreak/>
-                        ● Waiter — table map &amp; order taking<LineBreak/>
-                        ● Cashier — payments, Zarinpal, receipts<LineBreak/>
-                        ● Accountant — journals, P&amp;L, expenses<LineBreak/>
-                        ● Inventory — recipes auto-deducting stock<LineBreak/>
-                        ● Cameras — unlimited live streams
+                    <TextBlock Text="زعفران" FontSize="40" FontWeight="Bold" Foreground="#F4B942"/>
+                    <TextBlock Text="سامانه جامع مدیریت رستوران" FontSize="15" Foreground="#9AA7C0" Margin="2,2,0,30"/>
+                    <TextBlock Text="یک اپلیکیشن دسکتاپ برای همه نقش‌ها:" Foreground="#9AA7C0" FontSize="13"/>
+                    <TextBlock Foreground="#EEF1F7" FontSize="13" LineHeight="28" Margin="0,8,0,0" TextWrapping="Wrap">
+                        ● مدیر ارشد و مدیر رستوران — مرکز فرماندهی چندشعبه‌ای<LineBreak/>
+                        ● آشپزخانه — نمایشگر سفارش (KDS) با تایمر زنده<LineBreak/>
+                        ● گارسون — نقشه میزها و ثبت سفارش<LineBreak/>
+                        ● صندوقدار — پرداخت، زرین‌پال، چاپ رسید<LineBreak/>
+                        ● حسابدار — اسناد حسابداری، سود و زیان، هزینه‌ها<LineBreak/>
+                        ● انبار — کسر خودکار موجودی بر اساس رسپی<LineBreak/>
+                        ● دوربین‌ها — پخش زنده نامحدود
                     </TextBlock>
-                    <TextBlock Text="powered by ASP.NET Core + SignalR + EF Core" Foreground="#5B6B8C" FontSize="11" Margin="0,26,0,0"/>
+                    <TextBlock Text="مبتنی بر ASP.NET Core + SignalR + EF Core" Foreground="#5B6B8C" FontSize="11" Margin="0,26,0,0"/>
                 </StackPanel>
             </Border>
 
             <!-- form panel -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="52,0">
-                <TextBlock Text="Welcome back 👋" FontSize="24" FontWeight="Bold"/>
-                <TextBlock Text="Sign in to your restaurant workspace" Foreground="#9AA7C0" Margin="0,4,0,26"/>
+                <TextBlock Text="خوش آمدید 👋" FontSize="24" FontWeight="Bold"/>
+                <TextBlock Text="به فضای کاری رستوران خود وارد شوید" Foreground="#9AA7C0" Margin="0,4,0,26"/>
 
-                <TextBlock Text="SERVER" Foreground="#9AA7C0" FontSize="11" Margin="0,0,0,6"/>
-                <TextBox x:Name="ServerBox" Text="http://localhost:5000" Margin="0,0,0,16"/>
+                <TextBlock Text="آدرس سرور" Foreground="#9AA7C0" FontSize="11" Margin="0,0,0,6"/>
+                <TextBox x:Name="ServerBox" Text="http://localhost:5000" Margin="0,0,0,16" FlowDirection="LeftToRight"/>
 
-                <TextBlock Text="USERNAME" Foreground="#9AA7C0" FontSize="11" Margin="0,0,0,6"/>
+                <TextBlock Text="نام کاربری" Foreground="#9AA7C0" FontSize="11" Margin="0,0,0,6"/>
                 <TextBox x:Name="UserBox" Margin="0,0,0,14"/>
 
-                <TextBlock Text="PASSWORD" Foreground="#9AA7C0" FontSize="11" Margin="0,0,0,6"/>
+                <TextBlock Text="رمز عبور" Foreground="#9AA7C0" FontSize="11" Margin="0,0,0,6"/>
                 <PasswordBox x:Name="PassBox" Margin="0,0,0,20" KeyDown="PassBox_KeyDown"/>
 
-                <Button x:Name="LoginBtn" Style="{StaticResource PrimaryBtn}" Content="Sign in  →" FontSize="15" Padding="0,12" Click="Login_Click"/>
+                <Button x:Name="LoginBtn" Style="{StaticResource PrimaryBtn}" Content="ورود به سیستم  ←" FontSize="15" Padding="0,12" Click="Login_Click"/>
 
                 <TextBlock x:Name="ErrorText" Foreground="#F87171" FontSize="12" Margin="0,12,0,0" TextWrapping="Wrap" Visibility="Collapsed"/>
 
                 <Border Style="{StaticResource Card}" Margin="0,26,0,0" Padding="14">
                     <StackPanel>
-                        <TextBlock Text="DEMO ACCOUNTS (one click)" Foreground="#9AA7C0" FontSize="11" Margin="0,0,0,10"/>
+                        <TextBlock Text="حساب‌های نمونه (ورود با یک کلیک)" Foreground="#9AA7C0" FontSize="11" Margin="0,0,0,10"/>
                         <WrapPanel>
-                            <Button Content="🛡 SuperAdmin" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="superadmin|Admin@123"/>
-                            <Button Content="👔 Manager" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="manager|Manager@123"/>
-                            <Button Content="💵 Cashier" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="cashier|Cashier@123"/>
-                            <Button Content="🍽 Waiter" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="waiter|Waiter@123"/>
-                            <Button Content="👨‍🍳 Kitchen" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="kitchen|Kitchen@123"/>
-                            <Button Content="📊 Accountant" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="accountant|Acc@123"/>
-                            <Button Content="📦 Inventory" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="inventory|Stock@123"/>
+                            <Button Content="🛡 مدیر ارشد" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="superadmin|Admin@123"/>
+                            <Button Content="👔 مدیر" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="manager|Manager@123"/>
+                            <Button Content="💵 صندوقدار" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="cashier|Cashier@123"/>
+                            <Button Content="🍽 گارسون" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="waiter|Waiter@123"/>
+                            <Button Content="👨‍🍳 آشپزخانه" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="kitchen|Kitchen@123"/>
+                            <Button Content="📊 حسابدار" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="accountant|Acc@123"/>
+                            <Button Content="📦 انبار" Margin="0,0,8,8" Padding="10,6" Click="Demo_Click" Tag="inventory|Stock@123"/>
                         </WrapPanel>
                     </StackPanel>
                 </Border>
             </StackPanel>
 
-            <Button Grid.Column="1" Content="✕" Width="36" Height="30" HorizontalAlignment="Right" VerticalAlignment="Top"
-                    Margin="0,14,14,0" Background="Transparent" BorderThickness="0" Foreground="#9AA7C0" Click="Close_Click"/>
+            <Button Grid.Column="1" Content="✕" Width="36" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="14,14,0,0" Background="Transparent" BorderThickness="0" Foreground="#9AA7C0" Click="Close_Click"/>
         </Grid>
     </Border>
 </Window>

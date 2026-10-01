@@ -39,8 +39,8 @@ public class BarChart : System.Windows.FrameworkElement
         var accent = new LinearGradientBrush(Color.FromRgb(0xF4, 0xB9, 0x42), Color.FromRgb(0xE0, 0x8D, 0x1F), 90);
         var labelBrush = new SolidColorBrush(Color.FromRgb(0x9A, 0xA7, 0xC0));
         var valueBrush = new SolidColorBrush(Color.FromRgb(0xEE, 0xF1, 0xF7));
-        var labelFont = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
-        var valueFont = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
+        var labelFont = new Typeface(new FontFamily("Vazirmatn, Segoe UI"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+        var valueFont = new Typeface(new FontFamily("Vazirmatn, Segoe UI"), FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
 
         for (int i = 0; i < Items.Count; i++)
         {
@@ -117,7 +117,7 @@ public class DonutChart : System.Windows.FrameworkElement
             start += sweep;
         }
 
-        var centerFont = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
+        var centerFont = new Typeface(new FontFamily("Vazirmatn, Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
         var ft = new FormattedText(BarChart.FormatShort(total), CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
             centerFont, 16, new SolidColorBrush(Color.FromRgb(0xEE, 0xF1, 0xF7)), 1.25);
         dc.DrawText(ft, new Point(cx - ft.Width / 2, cy - ft.Height / 2));

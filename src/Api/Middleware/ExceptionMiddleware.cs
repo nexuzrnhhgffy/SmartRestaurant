@@ -24,7 +24,7 @@ public class ExceptionMiddleware
             _log.LogError(ex, "Unhandled error on {Path}", ctx.Request.Path);
             ctx.Response.StatusCode = 500;
             ctx.Response.ContentType = "application/json";
-            await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = "Internal server error: " + ex.Message, status = 500 }));
+            await ctx.Response.WriteAsync(JsonSerializer.Serialize(new { error = "خطای داخلی سرور: " + ex.Message, status = 500 }));
         }
     }
 }

@@ -99,7 +99,7 @@ public class PaymentsController : ControllerBase
     public async Task<IActionResult> UpdateGateway(GatewayConfigDto dto)
     {
         var me = (IUserContext)HttpContext.RequestServices.GetRequiredService<IUserContext>();
-        if (!me.IsSuperAdmin) throw AppException.Forbidden("SuperAdmin only.");
+        if (!me.IsSuperAdmin) throw AppException.Forbidden("فقط مدیر ارشد سیستم مجاز به این عملیات است.");
         await _payments.UpdateGatewayConfigAsync(dto);
         return NoContent();
     }
@@ -109,7 +109,7 @@ public class PaymentsController : ControllerBase
     private static string SandboxBankHtml(Guid paymentId, string callbackUrl)
     {
         const string template = """
-        <!doctype html><html><head><meta charset="utf-8"><title>Sandbox Gateway</title>
+        <!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>درگاه پرداخت آزمایشی</title>
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <style>
           body{font-family:Segoe UI,Tahoma,sans-serif;background:#0f1420;color:#eef1f7;display:grid;place-items:center;height:100vh;margin:0}
@@ -119,9 +119,9 @@ public class PaymentsController : ControllerBase
           h1{font-size:20px;margin:0 0 8px} p{color:#9aa7c0;font-size:14px;line-height:1.8}
           .amt{font-size:28px;color:#f4b942;font-weight:700;margin:16px 0}
         </style></head><body><div class="card"><div class="ring"></div>
-        <h1>Sandbox Payment Gateway</h1><p>Simulated bank page (Zarinpal / Mellat / Saman ...).<br>Payment is auto-approved in a moment...</p>
+        <h1>درگاه پرداخت اینترنتی زعفران</h1><p>صفحه شبیه‌سازی‌شده بانک (زرین‌پال / ملت / سامان ...).<br>پرداخت در چند لحظه به‌صورت خودکار تأیید می‌شود...</p>
         <div class="amt">درگاه پرداخت آزمایشی</div>
-        <p>Payment ID: @PAYMENT_ID@</p></div>
+        <p>شناسه پرداخت: <span dir="ltr">@PAYMENT_ID@</span></p></div>
         <script>setTimeout(function(){window.location.href="@CALLBACK_URL@";},2500);</script>
         </body></html>
         """;

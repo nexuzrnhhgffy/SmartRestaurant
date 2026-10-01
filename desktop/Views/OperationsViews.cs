@@ -14,27 +14,27 @@ public class InventoryView : UserControl, IRefreshable
 
     public InventoryView()
     {
-        var receiveBtn = new Button { Content = "＋ Receive stock", Style = (Style)Application.Current.Resources["PrimaryBtn"] };
-        receiveBtn.Click += async (_, _) => { new QuickFormDialog("Receive stock", new[] { "Ingredient (exact name)", "Quantity (+/−)", "Note" },
+        var receiveBtn = new Button { Content = "＋ ثبت خرید مواد", Style = (Style)Application.Current.Resources["PrimaryBtn"] };
+        receiveBtn.Click += async (_, _) => { new QuickFormDialog("ثبت ورود کالا به انبار", new[] { "نام ماده اولیه (دقیق)", "مقدار (+/−)", "یادداشت" },
             async vals =>
             {
                 var ings = await App.Api.GetAsync<List<IngredientDto>>("/api/v1/inventory/ingredients");
                 var ing = ings.FirstOrDefault(i => i.Name.Equals(vals[0], StringComparison.OrdinalIgnoreCase))
-                    ?? throw new ApiException("Ingredient not found: " + vals[0]);
+                    ?? throw new ApiException("ماده اولیه یافت نشد: " + vals[0]);
                 await App.Api.PostAsync<object>("/api/v1/inventory/movements", new { ingredientId = ing.Id, quantity = decimal.Parse(vals[1]), type = 1, note = vals[2] });
-                (Application.Current.MainWindow as MainWindow)?.Toast("📦 Stock received: " + ing.Name);
+                (Application.Current.MainWindow as MainWindow)?.Toast("📦 ورود کالا ثبت شد: " + ing.Name);
             }) { Owner = Application.Current.MainWindow }.ShowDialog();
             await RefreshAsync();
         };
 
-        var top = Ui.Row(Ui.Label("Stock levels — recipes auto-deduct on order completion", "#EEF1F7", 14, true), receiveBtn);
+        var top = Ui.Row(Ui.Label("سطح موجودی — با تکمیل هر سفارش، رسپی به‌صورت خودکار کسر می‌شود", "#EEF1F7", 14, true), receiveBtn);
 
         var grid = new Grid { Margin = new Thickness(0, 12, 0, 0) };
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(360) });
         var left = Ui.Card(Ui.Column(_list));
         left.Margin = new Thickness(0, 0, 12, 0);
-        var right = Ui.Card(Ui.Column(Ui.Label("Movement ledger", "#EEF1F7", 13, true), _movements .Margin(0, 10, 0, 0)));
+        var right = Ui.Card(Ui.Column(Ui.Label("دفتر گردش انبار", "#EEF1F7", 13, true), _movements .Margin(0, 10, 0, 0)));
         grid.Children.Add(left);
         grid.Children.Add(right);
         Grid.SetColumn(left, 0);
@@ -63,14 +63,14 @@ public class InventoryView : UserControl, IRefreshable
                 var row = Ui.Column(
                     Ui.Row(
                         Ui.Label(i.Name, "#EEF1F7", 13, true) .Width(190),
-                        Ui.Label($"{i.Stock:N1} / min {i.MinStock:N1} {i.Unit}", color, 12) .Width(150),
+                        Ui.Label(Fa.DigitsToFa($"{i.Stock:0.0}") + " / حداقل " + Fa.DigitsToFa($"{i.MinStock:0.0}") + " " + i.Unit, color, 12) .Width(190),
                         Ui.Muted(i.SupplierName ?? "") .Width(130),
                         Ui.Label(Ui.Money(i.StockValue), "#9AA7C0", 12) .HAlign(System.Windows.HorizontalAlignment.Right)),
                     new ProgressBar { Value = pct, Maximum = 100, Height = 5, Foreground = Ui.Brush(color), Background = Ui.Brush("#1E2740"), BorderThickness = new Thickness(0), Margin = new Thickness(0, 5, 0, 10) });
                 _list.Children.Add(row);
             }
             var totalValue = ings.Sum(i => i.StockValue);
-            _list.Children.Insert(0, Ui.Row(Ui.Label($"Total stock value: ", "#9AA7C0", 12), Ui.Label(Ui.Money(totalValue), "#4ADE80", 13, true)) .Margin(0, 0, 0, 12));
+            _list.Children.Insert(0, Ui.Row(Ui.Label("ارزش کل موجودی انبار: ", "#9AA7C0", 12), Ui.Label(Ui.Money(totalValue), "#4ADE80", 13, true)) .Margin(0, 0, 0, 12));
 
             var moves = await App.Api.GetAsync<List<StockMovementDto>>("/api/v1/inventory/movements?take=40");
             _movements.Children.Clear();
@@ -79,10 +79,10 @@ public class InventoryView : UserControl, IRefreshable
                 var color = m.Quantity >= 0 ? "#4ADE80" : "#F87171";
                 _movements.Children.Add(Ui.Column(
                     Ui.Row(
-                        Ui.Label((m.Quantity >= 0 ? "+" : "") + m.Quantity.ToString("N1"), color, 12, true) .Width(62),
+                        Ui.Label((m.Quantity >= 0 ? "+" : "") + Fa.DigitsToFa(m.Quantity.ToString("0.0")), color, 12, true) .Width(62),
                         Ui.Label(m.IngredientName, size: 12) .Width(130).TextTrimming(TextTrimming.CharacterEllipsis),
                         Ui.Muted(m.OrderNumber ?? m.Type.ToString()) .Width(90)),
-                    Ui.Muted(m.CreatedAt.ToLocalTime().ToString("MMM dd HH:mm")) .Margin(62, 1, 0, 7)));
+                    Ui.Muted(Fa.JalaliTime(m.CreatedAt.ToLocalTime())) .Margin(62, 1, 0, 7)));
             }
         }
         catch (Exception ex) { _list.Children.Clear(); _list.Children.Add(Ui.Label("⚠ " + ex.Message, "#F87171", 12)); }
@@ -117,7 +117,7 @@ public class MenuView : UserControl, IRefreshable
 
                 var toggle = new Button
                 {
-                    Content = m.IsAvailable ? "🟢 Available" : "🔴 86'd",
+                    Content = m.IsAvailable ? "🟢 موجود" : "🔴 ناموجود",
                     Style = (Style)Application.Current.Resources[m.IsAvailable ? "PrimaryBtn" : "DangerBtn"]
                 };
                 toggle.Click += async (_, _) =>
@@ -133,8 +133,8 @@ public class MenuView : UserControl, IRefreshable
                         toggle .HAlign(System.Windows.HorizontalAlignment.Right).VAlign(VerticalAlignment.Top)),
                     Ui.Label(Ui.Money(m.Price), "#F4B942", 15, true) .Margin(0, 8, 0, 0),
                     Ui.Muted(m.Description ?? "") .TextWrapping(TextWrapping.Wrap).Margin(0, 3, 0, 0).MaxHeight(34),
-                    Ui.Muted($"⏱ {m.PrepMinutes} min • {m.Calories} kcal" + (m.IsSpicy ? " • 🌶" : "") + (m.IsVegetarian ? " • 🌿" : "")) .Margin(0, 6, 0, 0),
-                    Ui.Label(recipe.Length > 0 ? "Recipe: " + recipe : "No recipe → no stock deduction", "#5B6B8C", 10.5) .TextWrapping(TextWrapping.Wrap).Margin(0, 6, 0, 0));
+                    Ui.Muted($"⏱ {Fa.Duration(m.PrepMinutes)} • {Fa.Num(m.Calories)} کالری" + (m.IsSpicy ? " • 🌶 تند" : "") + (m.IsVegetarian ? " • 🌿 گیاهی" : "")) .Margin(0, 6, 0, 0),
+                    Ui.Label(recipe.Length > 0 ? "رسپی: " + recipe : "بدون رسپی → کسر موجودی ندارد", "#5B6B8C", 10.5) .TextWrapping(TextWrapping.Wrap).Margin(0, 6, 0, 0));
                 _grid.Children.Add(card);
             }
         }
@@ -149,18 +149,18 @@ public class CamerasView : UserControl, IRefreshable
 
     public CamerasView()
     {
-        var addBtn = new Button { Content = "＋ Add camera / stream", Style = (Style)Application.Current.Resources["PrimaryBtn"] };
+        var addBtn = new Button { Content = "＋ افزودن دوربین / استریم", Style = (Style)Application.Current.Resources["PrimaryBtn"] };
         addBtn.Click += (_, _) =>
         {
-            new QuickFormDialog("Add camera", new[] { "Name", "URL (demo:kitchen / http://cam/mjpeg / rtsp://…)", "Location" },
+            new QuickFormDialog("افزودن دوربین", new[] { "نام", "آدرس (demo:kitchen / http://cam/mjpeg / rtsp://…)", "محل نصب" },
                 async vals =>
                 {
                     var type = vals[1].StartsWith("rtsp", StringComparison.OrdinalIgnoreCase) ? 3 : vals[1].StartsWith("demo", StringComparison.OrdinalIgnoreCase) ? 4 : 1;
                     await App.Api.PostAsync<object>("/api/v1/cameras", new { name = vals[0], url = vals[1], location = vals[2], type, isActive = true });
-                    (Application.Current.MainWindow as MainWindow)?.Toast("📹 Camera added");
+                    (Application.Current.MainWindow as MainWindow)?.Toast("📹 دوربین اضافه شد");
                 }) { Owner = Application.Current.MainWindow }.ShowDialog();
         };
-        var top = Ui.Row(Ui.Label("Unlimited streams — demo feeds are synthesized server-side (zero hardware needed)", "#EEF1F7", 13, true), addBtn);
+        var top = Ui.Row(Ui.Label("استریم نامحدود — تصاویر نمونه سمت سرور ساخته می‌شوند (بدون نیاز به سخت‌افزار)", "#EEF1F7", 13, true), addBtn);
         var root = new DockPanel();
         DockPanel.SetDock(top, Dock.Top);
         root.Children.Add(top);
@@ -190,7 +190,7 @@ public class CamerasView : UserControl, IRefreshable
                 var border = new Border { Child = cell, Margin = new Thickness(0, 0, 14, 14) };
                 _grid.Children.Add(border);
             }
-            if (cams.Count == 0) _grid.Children.Add(Ui.Placeholder("No cameras yet — add one above."));
+            if (cams.Count == 0) _grid.Children.Add(Ui.Placeholder("هنوز دوربینی ثبت نشده — از دکمه بالا اضافه کنید."));
         }
         catch (Exception ex) { _grid.Children.Clear(); _grid.Children.Add(Ui.Label("⚠ " + ex.Message, "#F87171", 12)); }
     }

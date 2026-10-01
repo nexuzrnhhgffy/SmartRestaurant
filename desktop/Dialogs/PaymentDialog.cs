@@ -18,13 +18,14 @@ public class PaymentDialog : Window
     public PaymentDialog(OrderDto order)
     {
         _order = order;
-        Title = $"Payment — order #{order.OrderNumber}";
+        Title = $"ثبت پرداخت — سفارش #{Fa.DigitsToFa(order.OrderNumber)}";
         Width = 520; Height = 470;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Background = Ui.Brush("#0F1420");
         ResizeMode = ResizeMode.NoResize;
+        FlowDirection = FlowDirection.RightToLeft;
 
-        _method.ItemsSource = new List<string> { "💵 Cash", "💳 Card (POS)", "🟢 Zarinpal", "🔵 Zibal", "🟠 IDPay", "🟣 Pay.ir", "🔷 NextPay", "🏦 Bank Mellat", "🏦 Bank Saman", "🏦 Bank Parsian" };
+        _method.ItemsSource = new List<string> { "💵 نقدی", "💳 کارتخوان (POS)", "🟢 زرین‌پال", "🔵 زیبال", "🟠 آی‌دی‌پی", "🟣 پی‌آی‌آر", "🔷 نکست‌پی", "🏦 بانک ملت", "🏦 بانک سامان", "🏦 بانک پارسیان" };
         _method.SelectedIndex = 0;
         _method.SelectionChanged += (_, _) => _change.Text = "";
         _cashGiven.TextChanged += (_, _) =>
@@ -32,36 +33,36 @@ public class PaymentDialog : Window
             if (decimal.TryParse(_cashGiven.Text, out var given) && _method.SelectedIndex == 0)
             {
                 var change = given - order.Total;
-                _change.Text = change >= 0 ? $"Change: {Ui.Money(change)}" : $"Short: {Ui.Money(-change)}";
+                _change.Text = change >= 0 ? $"باقی‌مانده: {Ui.Money(change)}" : $"کسری: {Ui.Money(-change)}";
                 _change.Foreground = change >= 0 ? Ui.Brush("#4ADE80") : Ui.Brush("#F87171");
             }
         };
 
-        _payBtn = new Button { Content = "Capture payment", Style = (Style)Application.Current.Resources["PrimaryBtn"], Padding = new Thickness(0, 11, 0, 11) };
+        _payBtn = new Button { Content = "ثبت و تسویه پرداخت", Style = (Style)Application.Current.Resources["PrimaryBtn"], Padding = new Thickness(0, 11, 0, 11) };
         _payBtn.Click += Pay_Click;
 
         Content = new StackPanel { Margin = new Thickness(34, 28, 34, 28) };
         var sp = (StackPanel)Content;
         sp.Children.Add(Ui.Row(
-            Ui.Label("Order #" + order.OrderNumber, "#F4B942", 20, true),
-            Ui.Badge(order.TypeName, "#22304A", "#EEF1F7") .Margin(12, 0, 0, 0).VAlign(VerticalAlignment.Center)));
-        sp.Children.Add(Ui.Label(order.CustomerName != null ? $"Guest: {order.CustomerName}" : "Walk-in / table order", "#9AA7C0", 12) .Margin(0, 4, 0, 18));
+            Ui.Label("سفارش #" + Fa.DigitsToFa(order.OrderNumber), "#F4B942", 20, true),
+            Ui.Badge(Fa.TypeName(order.TypeName), "#22304A", "#EEF1F7") .Margin(12, 0, 0, 0).VAlign(VerticalAlignment.Center)));
+        sp.Children.Add(Ui.Label(order.CustomerName != null ? $"مشتری: {order.CustomerName}" : "مشتری حضوری / سفارش میز", "#9AA7C0", 12) .Margin(0, 4, 0, 18));
 
         var totalCard = Ui.Card(Ui.Row(
-            Ui.Label("TOTAL DUE", "#9AA7C0", 12, true) .VAlign(VerticalAlignment.Center),
+            Ui.Label("مبلغ قابل پرداخت", "#9AA7C0", 12, true) .VAlign(VerticalAlignment.Center),
             Ui.Label(Ui.Money(order.Total), "#4ADE80", 26, true) .HAlign(System.Windows.HorizontalAlignment.Right).VAlign(VerticalAlignment.Center)))
         .Padding(18, 14, 18, 14).Margin(0, 0, 0, 18);
         sp.Children.Add(totalCard);
 
-        var breakdown = Ui.Muted($"Subtotal {Ui.Money(order.SubTotal)}   •   Discount −{Ui.Money(order.Discount)}   •   VAT {Ui.Money(order.Tax)}");
+        var breakdown = Ui.Muted($"جمع آیتم‌ها {Ui.Money(order.SubTotal)}   •   تخفیف {Ui.Money(order.Discount)}−   •   مالیات {Ui.Money(order.Tax)}");
         sp.Children.Add(breakdown);
 
-        sp.Children.Add(Ui.Label("Payment method", "#9AA7C0", 11) .Margin(0, 18, 0, 6));
+        sp.Children.Add(Ui.Label("روش پرداخت", "#9AA7C0", 11) .Margin(0, 18, 0, 6));
         sp.Children.Add(_method);
 
-        var cashRow = Ui.Row(Ui.Label("Cash received  ", "#9AA7C0", 12) .VAlign(VerticalAlignment.Center).Width(105), _cashGiven, _change .Margin(12, 0, 0, 0));
+        var cashRow = Ui.Row(Ui.Label("وجه نقدی دریافتی  ", "#9AA7C0", 12) .VAlign(VerticalAlignment.Center).Width(120), _cashGiven, _change .Margin(12, 0, 0, 0));
         sp.Children.Add(cashRow);
-        sp.Children.Add(Ui.Muted("Online gateways open the bank page in your browser; sandbox auto-approves in 2.5s.") .Margin(0, 14, 0, 0));
+        sp.Children.Add(Ui.Muted("درگاه‌های آنلاین صفحه بانک را در مرورگر باز می‌کنند؛ در حالت آزمایشی، پرداخت طی ۲/۵ ثانیه خودکار تأیید می‌شود.") .Margin(0, 14, 0, 0));
 
         sp.Children.Add(_payBtn .Margin(0, 20, 0, 0));
     }
@@ -69,14 +70,14 @@ public class PaymentDialog : Window
     private async void Pay_Click(object sender, RoutedEventArgs e)
     {
         _payBtn.IsEnabled = false;
-        _payBtn.Content = "Processing…";
+        _payBtn.Content = "در حال پردازش…";
         try
         {
             var idx = _method.SelectedIndex;
             if (idx <= 1)
             {
                 await App.Api.PostAsync<object>("/api/v1/payments/initiate", new { orderId = _order.Id, gateway = idx == 0 ? 1 : 2 });
-                (Owner as MainWindow)?.Toast("✅ Paid by " + (idx == 0 ? "cash" : "card"));
+                (Owner as MainWindow)?.Toast("✅ پرداخت با " + (idx == 0 ? "نقدی" : "کارتخوان") + " ثبت شد");
                 DialogResult = true;
             }
             else
@@ -94,25 +95,25 @@ public class PaymentDialog : Window
                         if (o.PaymentStatusName == "Paid") break;
                     }
                     var o2 = await App.Api.GetAsync<OrderDto>($"/api/v1/orders/{_order.Id}");
-                    if (o2.PaymentStatusName == "Paid") { (Owner as MainWindow)?.Toast("✅ " + result.GatewayName + " captured"); DialogResult = true; }
-                    else (Owner as MainWindow)?.Toast("⏳ Sandbox payment not captured yet — check again shortly");
+                    if (o2.PaymentStatusName == "Paid") { (Owner as MainWindow)?.Toast("✅ " + result.GatewayName + " تسویه شد"); DialogResult = true; }
+                    else (Owner as MainWindow)?.Toast("⏳ پرداخت آزمایشی هنوز تأیید نشده — چند لحظه دیگر بررسی کنید");
                 }
                 else
                 {
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(result.RedirectUrl) { UseShellExecute = true });
-                    (Owner as MainWindow)?.Toast("🌐 Bank page opened — verify via callback, then refresh");
+                    (Owner as MainWindow)?.Toast("🌐 صفحه بانک باز شد — پس از تأیید بانک، وضعیت را بروزرسانی کنید");
                     DialogResult = true;
                 }
             }
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, ex.Message, "Payment failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, ex.Message, "پرداخت ناموفق بود", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         finally
         {
             _payBtn.IsEnabled = true;
-            _payBtn.Content = "Capture payment";
+            _payBtn.Content = "ثبت و تسویه پرداخت";
         }
     }
 }

@@ -1,30 +1,41 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Zafaran — Web Admin</title><link rel="stylesheet" href="/assets/css/site.css">
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>زعفران — پنل مدیریت وب</title>
+<style>
+  @font-face { font-family: "Vazirmatn"; src: url("/assets/fonts/Vazirmatn-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Vazirmatn"; src: url("/assets/fonts/Vazirmatn-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+</style>
+<link rel="stylesheet" href="/assets/css/site.css">
 <style>.login{max-width:380px;margin:14vh auto;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:34px}
 input{width:100%;background:#121828;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-family:inherit;margin:6px 0 14px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:22px 0}
 .stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
 .stat b{font-size:22px;color:var(--accent)}</style></head>
 <body><div class="container">
-<div id="login" class="login"><h2 style="margin-bottom:4px">🫖 Zafaran Web Admin</h2>
-<p style="color:var(--muted);font-size:13px;margin-bottom:16px">Full dashboards live in the <b>Zafaran Desktop</b> app — this is the quick view.</p>
-<label>Username</label><input id="u" value="manager"><label>Password</label><input id="p" type="password" value="Manager@123">
-<button class="btn primary" style="width:100%;justify-content:center" onclick="login()">Sign in</button>
+<div id="login" class="login"><h2 style="margin-bottom:4px">🫖 پنل مدیریت زعفران</h2>
+<p style="color:var(--muted);font-size:13px;margin-bottom:16px">داشبوردهای کامل در <b>اپلیکیشن دسکتاپ زعفران</b> قرار دارند — این نسخه، مرور سریع وب است.</p>
+<label>نام کاربری</label><input id="u" value="manager" style="text-align:left;direction:ltr"><label>رمز عبور</label><input id="p" type="password" value="Manager@123" style="text-align:left;direction:ltr">
+<button class="btn primary" style="width:100%;justify-content:center" onclick="doLogin()">ورود به داشبورد</button>
 <p id="err" style="color:var(--red);font-size:12.5px;margin-top:10px"></p></div>
-<div id="dash" style="display:none"><h2 class="section-title">Branch overview</h2><div class="stats" id="stats"></div>
+<div id="dash" style="display:none"><h2 class="section-title">نمای کلی شعبه</h2><div class="stats" id="stats"></div>
 <div class="grid" id="feed"></div></div></div>
 <script>
+const FA="۰۱۲۳۴۵۶۷۸۹";
+const faN=v=>String(v).replace(/\d/g,d=>FA[+d]);
+const faMoney=v=>faN(Number(v).toLocaleString("en-US"))+" تومان";
+const FA_ST={Pending:"در انتظار",Confirmed:"تأیید شده",Preparing:"در حال پخت",Ready:"آماده",Served:"سرو شده",Completed:"تکمیل شده",Cancelled:"لغو شده",Unpaid:"پرداخت نشده",Paid:"پرداخت شده",Failed:"ناموفق",Refunded:"بازگشت وجه"};
+const faS=s=>FA_ST[s]||s;
 const API=location.origin+"/api/v1";let T=null;
+const elLogin=document.getElementById("login"),elDash=document.getElementById("dash"),elErr=document.getElementById("err");
 async function api(p,o={}){const r=await fetch(API+p,{...o,headers:{"Content-Type":"application/json",Authorization:"Bearer "+T}});if(!r.ok)throw new Error((await r.json()).error);return r.json()}
-async function login(){try{const a=await api("/auth/login",{method:"POST",body:JSON.stringify({userName:u.value,password:p.value})});T=a.accessToken;sessionStorage.setItem("wt",T);login.style.display="none";dash.style.display="block";load()}catch(e){err.textContent="⚠ "+e.message}}
+async function doLogin(){try{const a=await api("/auth/login",{method:"POST",body:JSON.stringify({userName:u.value,password:p.value})});T=a.accessToken;sessionStorage.setItem("wt",T);elLogin.style.display="none";elDash.style.display="block";load()}catch(e){elErr.textContent="⚠ "+e.message}}
 async function load(){const d=await api("/reports/dashboard");
-stats.innerHTML=`<div class="stat">Today revenue<br><b>${Number(d.todayRevenue).toLocaleString()} T</b></div>
-<div class="stat">Orders<br><b>${d.todayOrders}</b></div><div class="stat">Open orders<br><b>${d.openOrders}</b></div>
-<div class="stat">Tables<br><b>${d.tablesOccupied}/${d.tablesTotal}</b></div><div class="stat">Low stock<br><b style="color:${d.lowStockCount?'var(--red)':'var(--green)'}">${d.lowStockCount}</b></div>`;
+stats.innerHTML=`<div class="stat">درآمد امروز<br><b>${faMoney(d.todayRevenue)}</b></div>
+<div class="stat">سفارش‌ها<br><b>${faN(d.todayOrders)}</b></div><div class="stat">سفارش‌های باز<br><b>${faN(d.openOrders)}</b></div>
+<div class="stat">میزها<br><b>${faN(d.tablesOccupied)}/${faN(d.tablesTotal)}</b></div><div class="stat">موجودی کم<br><b style="color:${d.lowStockCount?'var(--red)':'var(--green)'}">${faN(d.lowStockCount)}</b></div>`;
 const os=await api("/orders/active");
-feed.innerHTML=os.map(o=>`<div class="dish"><div class="body"><div class="name">#${o.orderNumber} — ${o.statusName}</div>
-<div class="desc">${o.items.map(i=>i.quantity+"× "+i.itemName).join(" • ")}</div>
-<div class="row"><span class="price">${Number(o.total).toLocaleString()} T</span><span style="color:var(--muted);font-size:12px">${o.paymentStatusName}</span></div></div></div>`).join("")||'<div class="empty">No active orders</div>'}
-if(sessionStorage.getItem("wt")){T=sessionStorage.getItem("wt");login.style.display="none";dash.style.display="block";load()}
+feed.innerHTML=os.map(o=>`<div class="dish"><div class="body"><div class="name">#${faN(o.orderNumber)} — ${faS(o.statusName)}</div>
+<div class="desc">${o.items.map(i=>faN(i.quantity)+"× "+i.itemName).join(" • ")}</div>
+<div class="row"><span class="price">${faMoney(o.total)}</span><span style="color:var(--muted);font-size:12px">${faS(o.paymentStatusName)}</span></div></div></div>`).join("")||'<div class="empty">سفارش فعالی وجود ندارد</div>'}
+if(sessionStorage.getItem("wt")){T=sessionStorage.getItem("wt");elLogin.style.display="none";elDash.style.display="block";load()}
 </script></body></html>

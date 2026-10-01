@@ -88,10 +88,10 @@ public class InventoryService : IInventoryService
             });
             if (!wasLow && ing.Stock <= ing.MinStock)
             {
-                await _notifications.CreateAsync(NotificationType.LowStock, $"Low stock: {ing.Name}",
-                    $"{ing.Stock:N1} {ing.Unit} left (min {ing.MinStock:N1}). Reorder from {ing.SupplierName}.", order.BranchId, UserRole.Manager);
-                await _notifications.CreateAsync(NotificationType.LowStock, $"Low stock: {ing.Name}",
-                    $"{ing.Stock:N1} {ing.Unit} left.", order.BranchId, UserRole.Inventory);
+                await _notifications.CreateAsync(NotificationType.LowStock, $"موجودی کم: {ing.Name}",
+                    $"تنها {Fa.DigitsToFa(ing.Stock.ToString("0.0"))} {ing.Unit} باقی مانده (حداقل {Fa.DigitsToFa(ing.MinStock.ToString("0.0"))}). از {ing.SupplierName} سفارش دهید.", order.BranchId, UserRole.Manager);
+                await _notifications.CreateAsync(NotificationType.LowStock, $"موجودی کم: {ing.Name}",
+                    $"تنها {Fa.DigitsToFa(ing.Stock.ToString("0.0"))} {ing.Unit} باقی مانده.", order.BranchId, UserRole.Inventory);
             }
             _log.LogInformation("Deducted {Qty} {Unit} of {Name} for order {Order} → {Stock}", total, ing.Unit, ing.Name, order.OrderNumber, ing.Stock);
         }
@@ -137,7 +137,7 @@ public class InventoryService : IInventoryService
         _db.StockMovements.Add(new StockMovement { IngredientId = ing.Id, Type = type, Quantity = signed, StockAfter = ing.Stock, Note = note ?? type.ToString(), UserId = userId, BranchId = ing.BranchId });
         await _db.SaveChangesAsync();
         if (!wasLow && ing.Stock <= ing.MinStock)
-            await _notifications.CreateAsync(NotificationType.LowStock, $"Low stock: {ing.Name}", $"{ing.Stock:N1} {ing.Unit} left (min {ing.MinStock:N1}).", ing.BranchId, UserRole.Manager);
+            await _notifications.CreateAsync(NotificationType.LowStock, $"موجودی کم: {ing.Name}", $"تنها {Fa.DigitsToFa(ing.Stock.ToString("0.0"))} {ing.Unit} باقی مانده (حداقل {Fa.DigitsToFa(ing.MinStock.ToString("0.0"))}).", ing.BranchId, UserRole.Manager);
         await _notify.Clients.All.StatsRefresh("stock-movement");
     }
 

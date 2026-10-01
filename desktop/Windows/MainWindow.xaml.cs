@@ -17,14 +17,14 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         UserNameText.Text = Session.DisplayName;
-        RoleText.Text = Session.Role + (Session.BranchId != null ? " • branch" : " • all branches");
-        BranchText.Text = "all branches";
+        RoleText.Text = Fa.Role(Session.Role) + (Session.BranchId != null ? " • یک شعبه" : " • همه شعبه‌ها");
+        BranchText.Text = "همه شعبه‌ها";
         BuildNav();
         BuildBranchSelector();
         App.Realtime.NotificationReceived += OnNotification;
         App.Realtime.ConnectionChanged += OnConnection;
         App.Realtime.StatsRefresh += _ => { };
-        _clock.Tick += (_, _) => ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
+        _clock.Tick += (_, _) => ClockText.Text = Fa.Clock(DateTime.Now);
         _clock.Start();
         Navigate("Overview");
     }
@@ -44,20 +44,20 @@ public partial class MainWindow : Window
 
         var role = Session.Role;
         bool adminish = role is "SuperAdmin" or "Manager";
-        Add("Overview", "📊", "Overview", true);
-        Add("Orders", "🧾", "Orders", role != "Kitchen");
-        Add("KDS", "👨‍🍳", "Kitchen Display", role is "Kitchen" or "SuperAdmin" or "Manager");
-        Add("Tables", "🪑", "Tables & Floor", role is "Waiter" or "SuperAdmin" or "Manager" or "Cashier");
-        Add("Reservations", "📅", "Reservations", adminish || role == "Waiter");
-        Add("Menu", "🍽", "Menu & Recipes", adminish);
-        Add("Inventory", "📦", "Inventory", adminish || role == "Inventory");
-        Add("Payments", "💳", "Payments", adminish || role == "Cashier");
-        Add("Accounting", "📈", "Accounting", adminish || role == "Accountant");
-        Add("Cameras", "📹", "Cameras", adminish);
-        Add("Events", "🎉", "Events", adminish);
-        Add("Branches", "🏢", "Branches", role == "SuperAdmin");
-        Add("Users", "👥", "Users & Roles", adminish);
-        Add("Settings", "⚙", "Settings", role == "SuperAdmin");
+        Add("Overview", "📊", "نمای کلی", true);
+        Add("Orders", "🧾", "سفارش‌ها و صورت‌حساب", role != "Kitchen");
+        Add("KDS", "👨‍🍳", "نمایشگر آشپزخانه", role is "Kitchen" or "SuperAdmin" or "Manager");
+        Add("Tables", "🪑", "میزها و سالن", role is "Waiter" or "SuperAdmin" or "Manager" or "Cashier");
+        Add("Reservations", "📅", "رزروها", adminish || role == "Waiter");
+        Add("Menu", "🍽", "منو و رسپی‌ها", adminish);
+        Add("Inventory", "📦", "انبار و موجودی", adminish || role == "Inventory");
+        Add("Payments", "💳", "پرداخت‌ها", adminish || role == "Cashier");
+        Add("Accounting", "📈", "حسابداری", adminish || role == "Accountant");
+        Add("Cameras", "📹", "دوربین‌ها", adminish);
+        Add("Events", "🎉", "رویدادها", adminish);
+        Add("Branches", "🏢", "شعبه‌ها", role == "SuperAdmin");
+        Add("Users", "👥", "کاربران و نقش‌ها", adminish);
+        Add("Settings", "⚙", "تنظیمات", role == "SuperAdmin");
     }
 
     private void BuildBranchSelector()
@@ -101,20 +101,20 @@ public partial class MainWindow : Window
     {
         PageTitle.Text = key switch
         {
-            "Overview" => "Overview",
-            "Orders" => "Orders & Billing",
-            "KDS" => "Kitchen Display System",
-            "Tables" => "Tables & Floor Plan",
-            "Reservations" => "Reservations",
-            "Menu" => "Menu & Recipes",
-            "Inventory" => "Inventory — Auto-deduction Engine",
-            "Payments" => "Payments — Iranian Gateways",
-            "Accounting" => "Accounting",
-            "Cameras" => "Live Cameras",
-            "Events" => "Events & Promotions",
-            "Branches" => "Branches",
-            "Users" => "Users & Roles",
-            "Settings" => "Settings & Gateways",
+            "Overview" => "نمای کلی",
+            "Orders" => "سفارش‌ها و صورت‌حساب",
+            "KDS" => "نمایشگر آشپزخانه (KDS)",
+            "Tables" => "میزها و نقشه سالن",
+            "Reservations" => "رزروها",
+            "Menu" => "منو و رسپی‌ها",
+            "Inventory" => "انبار — موتور کسر خودکار موجودی",
+            "Payments" => "پرداخت‌ها — درگاه‌های ایرانی",
+            "Accounting" => "حسابداری",
+            "Cameras" => "دوربین‌های زنده",
+            "Events" => "رویدادها و جشنواره‌ها",
+            "Branches" => "شعبه‌ها",
+            "Users" => "کاربران و نقش‌ها",
+            "Settings" => "تنظیمات و درگاه‌های پرداخت",
             _ => key
         };
         CurrentBranchId = SelectedBranchId ?? Session.BranchId;
@@ -155,7 +155,7 @@ public partial class MainWindow : Window
     {
         var keys = _viewCache.Keys.ToList();
         _viewCache.Clear();
-        if (PageTitle.Text == "Overview") { Navigate("Overview"); return; }
+        if (PageTitle.Text == "نمای کلی") { Navigate("Overview"); return; }
         var current = ContentHost.Content as UserControl;
         if (current != null)
         {
@@ -184,7 +184,7 @@ public partial class MainWindow : Window
     {
         LiveDot.Fill = new SolidColorBrush(Color.FromRgb(
             (byte)(state == "online" ? 0x4A : 0xF8), (byte)(state == "online" ? 0xDE : 0x87), (byte)(state == "online" ? 0x80 : 0x71)));
-        LiveText.Text = state == "online" ? "live" : "offline";
+        LiveText.Text = state == "online" ? "متصل" : "قطع ارتباط";
     }
 
     private async Task LoadBellAsync()
@@ -207,7 +207,7 @@ public partial class MainWindow : Window
                     {
                         new TextBlock { Text = IconFor(n.Type) + "  " + n.Title, FontWeight = FontWeights.SemiBold, FontSize = 12.5, TextTrimming = TextTrimming.CharacterEllipsis },
                         new TextBlock { Text = n.Message, Foreground = (Brush)FindResource("Muted"), FontSize = 11.5, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0) },
-                        new TextBlock { Text = n.CreatedAt.ToLocalTime().ToString("MMM dd HH:mm"), Foreground = (Brush)FindResource("Muted"), FontSize = 10, Margin = new Thickness(0, 3, 0, 0) }
+                        new TextBlock { Text = Fa.JalaliTime(n.CreatedAt.ToLocalTime()), Foreground = (Brush)FindResource("Muted"), FontSize = 10, Margin = new Thickness(0, 3, 0, 0) }
                     }
                 };
                 b.MouseDown += async (_, _) => { await App.Api.PutAsync<object>($"/api/v1/notifications/{n.Id}/read", new { }); };

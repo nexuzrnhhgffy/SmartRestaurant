@@ -17,14 +17,14 @@ public static class Scope
         {
             if (requested is not null) return requested.Value;
             var first = await db.Branches.OrderBy(b => b.CreatedAt).FirstOrDefaultAsync(b => b.IsActive)
-                ?? throw AppException.BadRequest("No active branch exists.");
+                ?? throw AppException.BadRequest("هیچ شعبه فعالی وجود ندارد.");
             return first.Id;
         }
         if (user.BranchId is not null) return user.BranchId.Value;
         // customers ordering online: allow explicit branch
         if (requested is not null) return requested.Value;
         var fb = await db.Branches.OrderBy(b => b.CreatedAt).FirstOrDefaultAsync(b => b.IsActive)
-            ?? throw AppException.BadRequest("No active branch exists.");
+            ?? throw AppException.BadRequest("هیچ شعبه فعالی وجود ندارد.");
         return fb.Id;
     }
 }
