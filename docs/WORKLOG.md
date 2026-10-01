@@ -100,3 +100,10 @@ Session date: 2026-09-25 (UTC)
 - Full-stack smart restaurant delivered: dine-in + online + events + accounting + kitchen,
   per-role dashboards, seeded analytics-grade demo data, custom design system frontend.
 - 41/41 end-to-end checks green before push.
+
+## Task ID: 14 — Video published to GitHub
+- Added docs/video/SmartRestaurant_Product_Video.mp4 (119.8s, 1080p H.264 + AAC Persian narration fa-IR-DilaraNeural)
+- Added docs/video/README.md (bilingual specs, 11-scene breakdown, reproduce guide)
+- Added docs/video/scripts/ (render_scenes.py, make_narration_fa.py, build_video.py, make_narration.py)
+- Normalized file modes (fonts/source files 644→755 artifacts from re-seeded env)
+- Re-pushed to github.com/nexuzrnhhgffy/SmartRestaurant (remote config had been wiped by env reset)
